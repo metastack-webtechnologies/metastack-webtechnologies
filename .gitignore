@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+web1/
+*.env
+.idea/ # For PyCharm users
+.vscode/ # For VS Code users (optional, if you don't want to share workspace settings)
+
+# Database
+*.sqlite3
+
+# Media and Static Files
+/media
+/static_cdn
+
+# Operating System
+.DS_Store
+Thumbs.db

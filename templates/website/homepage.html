@@ -1,0 +1,96 @@
+<!-- website/homepage.html -->
+<!-- THIS IS A NEW FILE! Create it inside metaproducts-website/templates/website/ -->
+<!-- First, create the 'templates' folder at the root of your project: metaproducts-website/templates/ -->
+<!-- Then, create the 'website' folder inside 'templates': metaproducts-website/templates/website/ -->
+<!-- Finally, create this homepage.html file inside 'templates/website/' -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ company_name }} - Innovative Software Solutions</title>
+    <!-- Favicon - you'll replace this with your actual favicon -->
+    <link rel="icon" href="https://placehold.co/32x32/cccccc/ffffff?text=MS" type="image/png">
+    <!-- Tailwind CSS CDN for quick setup. For production, we'll use a build process. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for Inter font and general styling if needed */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased">
+    <header class="bg-blue-600 shadow-md py-4 px-6 md:px-12">
+        <nav class="container mx-auto flex justify-between items-center">
+            <a href="{% url 'homepage' %}" class="text-white text-3xl font-bold tracking-tight rounded-md p-2 hover:bg-blue-700 transition duration-300">
+                {{ company_name }}
+            </a>
+            <div class="hidden md:flex space-x-6">
+                <a href="#" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Home</a>
+                <a href="#" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Services</a>
+                <a href="#" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">About Us</a>
+                <a href="#" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Portfolio</a>
+                <a href="#" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Contact</a>
+            </div>
+            <button class="md:hidden text-white focus:outline-none">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-16 text-center">
+        <section class="mb-16">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-blue-800 mb-6 leading-tight rounded-md p-3">
+                Crafting <span class="text-blue-600">Innovative Software</span> Solutions
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                Empowering businesses with cutting-edge technology and exceptional user experiences.
+            </p>
+            <a href="#" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transform transition duration-300 hover:scale-105">
+                Discover Our Services
+            </a>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div class="bg-white rounded-xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100">
+                <div class="text-blue-500 text-5xl mb-4">💡</div>
+                <h3 class="text-2xl font-semibold text-gray-900 mb-3">Idea Incubation</h3>
+                <p class="text-gray-600">
+                    From concept to reality, we refine your ideas into actionable plans.
+                </p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100">
+                <div class="text-blue-500 text-5xl mb-4">⚙️</div>
+                <h3 class="text-2xl font-semibold text-gray-900 mb-3">Development Excellence</h3>
+                <p class="text-gray-600">
+                    Building robust, scalable, and secure software applications.
+                </p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100">
+                <div class="text-blue-500 text-5xl mb-4">🚀</div>
+                <h3 class="text-2xl font-semibold text-gray-900 mb-3">Launch & Growth</h3>
+                <p class="text-gray-600">
+                    Ensuring successful deployment and continuous optimization.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 px-6 md:px-12 text-center rounded-t-xl">
+        <div class="container mx-auto">
+            <p>&copy; 2025 {{ company_name }}. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
