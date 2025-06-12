@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ company_name }} - Project Detail</title>
+    <link rel="icon" href="https://placehold.co/32x32/cccccc/ffffff?text=MS" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased">
+    <header class="bg-blue-600 shadow-md py-4 px-6 md:px-12">
+        <nav class="container mx-auto flex justify-between items-center">
+            <a href="{% url 'homepage' %}" class="text-white text-3xl font-bold tracking-tight rounded-md p-2 hover:bg-blue-700 transition duration-300">
+                {{ company_name }}
+            </a>
+            <div class="hidden md:flex space-x-6">
+                <a href="{% url 'homepage' %}" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Home</a>
+                <a href="{% url 'about' %}" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">About Us</a>
+                <a href="{% url 'homepage' %}#services" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Services</a>
+                <a href="{% url 'homepage' %}#portfolio" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Portfolio</a>
+                <a href="{% url 'contact' %}" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Contact</a>
+            </div>
+            <button class="md:hidden text-white focus:outline-none">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-16">
+        <section class="text-center mb-16">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-blue-800 mb-6 leading-tight">
+                Project Name - <span class="text-blue-600">Detail View</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+                This is a generic detail page for a portfolio project.
+            </p>
+            <img src="https://placehold.co/800x450/a0a0a0/ffffff?text=Project+Detail+Image" alt="Project Placeholder" class="w-full max-w-4xl mx-auto rounded-lg shadow-lg mb-8">
+        </section>
+
+        <section class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 mb-16 text-left">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Project Overview</h2>
+            <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </p>
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">Technologies Used:</h3>
+            <div class="flex flex-wrap gap-2 mb-6">
+                <span class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full"><i class="fab fa-python mr-1"></i>Python</span>
+                <span class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full"><i class="fab fa-react mr-1"></i>React</span>
+                <span class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full"><i class="fab fa-html5 mr-1"></i>HTML5</span>
+                <span class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full"><i class="fab fa-css3-alt mr-1"></i>CSS3</span>
+                <span class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full"><i class="fas fa-database mr-1"></i>PostgreSQL</span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-3">Key Features:</h3>
+            <ul class="list-disc list-inside text-lg text-gray-700 leading-relaxed mb-6">
+                <li>Feature 1: Detailed explanation of the first key feature.</li>
+                <li>Feature 2: Description of the second important feature and its benefits.</li>
+                <li>Feature 3: How the third feature solves a specific problem.</li>
+            </ul>
+            <div class="text-center">
+                <a href="#" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition duration-300 hover:scale-105">
+                    View Live Project <i class="fas fa-external-link-alt ml-2"></i>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 px-6 md:px-12 text-center rounded-t-xl mt-16">
+        <div class="container mx-auto">
+            <p>&copy; 2025 {{ company_name }}. All rights reserved.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
+                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
