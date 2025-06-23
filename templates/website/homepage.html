@@ -1,6 +1,7 @@
 {% extends 'website/base.html' %}
+{% load static %} {# It's still good practice to load static here, even if base.html does, for any static assets specific to this template #}
 
-{% block title %}{{ company_name }} - Crafting Innovative Software Solutions{% endblock %}
+{% block title %}{{ company_name }} - Crafting Innovative Software Solutions{% endblock title %} {# Override base title #}
 
 {% block content %}
     <div class="container mx-auto px-6 py-16 text-center">
@@ -23,7 +24,7 @@
                 {% for service in services %}
                 {# Only link if service has a slug; otherwise, display as a non-clickable card #}
                 {% if service.slug %}
-                    <a href="{% url 'service_detail' slug=service.slug %}" class="block">
+                    <a href="{% url 'service_detail' slug=service.slug %}" class="block"> {# MODIFICATION: Added slug argument for service_detail #}
                         <div class="bg-gray-50 rounded-lg p-6 shadow-md transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100 h-full flex flex-col justify-between">
                             <div>
                                 <div class="text-blue-500 text-5xl mb-4">
@@ -88,7 +89,7 @@
                         <option value="{% url 'homepage' %}{% if current_technology %}?technology={{ current_technology }}{% endif %}"
                                 {% if not current_industry %}selected{% endif %}>All Industries</option>
                         {% for industry in all_industries %}
-                            <option value="{% url 'homepage' %}?industry={{ industry|urlencode }}{% if current_technology %}&technology={{ current_technology }}{% endif %}"
+                            <option value="{% url 'homepage' %}?industry={{ industry|urlencode }}{% if current_technology %}&industry={{ current_technology }}{% endif %}"
                                     {% if current_industry == industry %}selected{% endif %}>{{ industry }}</option>
                         {% endfor %}
                     </select>
@@ -179,4 +180,4 @@
             </a>
         </section>
     </div>
-{% endblock %}
+{% endblock content %}
