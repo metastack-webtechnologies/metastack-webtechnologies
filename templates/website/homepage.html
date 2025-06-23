@@ -1,47 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ company_name }} - MetaStack Web Technologies</title>
-    <!-- Favicon -->
-    <link rel="icon" href="https://placehold.co/32x32/cccccc/ffffff?text=MS" type="image/png">
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* Custom CSS for Inter font and general styling */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-    </style>
-</head>
-<body class="bg-gray-50 text-gray-800 antialiased">
-    <header class="bg-blue-600 shadow-md py-4 px-6 md:px-12">
-        <nav class="container mx-auto flex justify-between items-center">
-            <a href="{% url 'homepage' %}" class="text-white text-3xl font-bold tracking-tight rounded-md p-2 hover:bg-blue-700 transition duration-300">
-                {{ company_name }}
-            </a>
-            <div class="hidden md:flex space-x-6">
-                <a href="{% url 'homepage' %}" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Home</a>
-                <a href="{% url 'about' %}" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">About Us</a>
-                <a href="#services" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Services</a>
-                <a href="#portfolio" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Portfolio</a>
-                <a href="{% url 'contact' %}" class="text-white text-lg font-medium hover:text-blue-200 transition duration-300 rounded-md p-2 hover:bg-blue-700">Contact</a>
-            </div>
-            <button class="md:hidden text-white focus:outline-none">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                </svg>
-            </button>
-        </nav>
-    </header>
+{% extends 'website/base.html' %}
 
-    <main class="container mx-auto px-6 py-16 text-center">
+{% block title %}{{ company_name }} - Crafting Innovative Software Solutions{% endblock %}
+
+{% block content %}
+    <div class="container mx-auto px-6 py-16 text-center">
         <section class="mb-16">
             <h1 class="text-5xl md:text-6xl font-extrabold text-blue-800 mb-6 leading-tight rounded-md p-3">
                 Crafting <span class="text-blue-600">Innovative Software</span> Solutions
@@ -59,13 +21,37 @@
             <h2 class="text-4xl font-bold text-gray-900 mb-12">Our Services</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8">
                 {% for service in services %}
-                <div class="bg-gray-50 rounded-lg p-6 shadow-md transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100">
-                    <div class="text-blue-500 text-5xl mb-4">
-                        <i class="{{ service.icon_class|default:'fas fa-cogs' }}"></i>
+                {# Only link if service has a slug; otherwise, display as a non-clickable card #}
+                {% if service.slug %}
+                    <a href="{% url 'service_detail' slug=service.slug %}" class="block">
+                        <div class="bg-gray-50 rounded-lg p-6 shadow-md transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100 h-full flex flex-col justify-between">
+                            <div>
+                                <div class="text-blue-500 text-5xl mb-4">
+                                    <i class="{{ service.icon_class|default:'fas fa-cogs' }}"></i>
+                                </div>
+                                <h3 class="text-2xl font-semibold text-gray-900 mb-3">{{ service.title }}</h3>
+                                <p class="text-gray-600">{{ service.short_description }}</p>
+                            </div>
+                            <div class="mt-4 text-blue-600 hover:text-blue-800 font-medium">
+                                Learn More <i class="fas fa-arrow-right ml-1 text-sm"></i>
+                            </div>
+                        </div>
+                    </a>
+                {% else %}
+                    {# Display as a non-clickable card if slug is missing, with a visual indicator #}
+                    <div class="bg-gray-50 rounded-lg p-6 shadow-md border border-gray-100 h-full flex flex-col justify-between opacity-70 cursor-not-allowed">
+                        <div>
+                            <div class="text-blue-500 text-5xl mb-4">
+                                <i class="{{ service.icon_class|default:'fas fa-cogs' }}"></i>
+                            </div>
+                            <h3 class="text-2xl font-semibold text-gray-900 mb-3">{{ service.title|default:"Unnamed Service" }}</h3>
+                            <p class="text-gray-600">{{ service.short_description|default:"No description available." }}</p>
+                        </div>
+                        <div class="mt-4 text-red-600 font-medium text-sm">
+                            Detail page not available (missing slug)
+                        </div>
                     </div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">{{ service.title }}</h3>
-                    <p class="text-gray-600">{{ service.description }}</p>
-                </div>
+                {% endif %}
                 {% empty %}
                 <p class="col-span-full text-gray-500">No services added yet. Please add services via Django Admin.</p>
                 {% endfor %}
@@ -74,7 +60,51 @@
 
         <!-- Projects/Portfolio Section -->
         <section id="portfolio" class="mb-16 py-12 bg-gray-100 rounded-xl shadow-lg border border-gray-200">
-            <h2 class="text-4xl font-bold text-gray-900 mb-12">Our Latest Projects</h2>
+            <h2 class="text-4xl font-bold text-gray-900 mb-8">Our Latest Projects</h2>
+
+            <!-- Portfolio Filters -->
+            <div class="flex flex-wrap justify-center gap-4 mb-8 px-4">
+                {# Technology Filters #}
+                <div class="relative group">
+                    <button class="bg-blue-500 text-white px-5 py-2 rounded-full hover:bg-blue-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Filter by Technology <i class="fas fa-angle-down ml-2"></i>
+                    </button>
+                    <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-lg mt-2 py-2 w-48 text-left z-10">
+                        <a href="{% url 'homepage' %}{% if current_industry %}?industry={{ current_industry }}{% endif %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">All Technologies</a>
+                        {% for tech in all_technologies %}
+                            <a href="{% url 'homepage' %}?technology={{ tech.slug }}{% if current_industry %}&industry={{ current_industry }}{% endif %}"
+                               class="block px-4 py-2 text-gray-800 hover:bg-gray-100 {% if current_technology == tech.slug %}bg-blue-100 text-blue-800 font-semibold{% endif %}">
+                                {% if tech.icon_class %}<i class="{{ tech.icon_class }} mr-2"></i>{% endif %}{{ tech.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {# Industry Filters (using a select dropdown for better handling of many options) #}
+                <div class="relative">
+                    <select onchange="window.location.href = this.value;"
+                            class="bg-blue-500 text-white px-5 py-2 rounded-full hover:bg-blue-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 appearance-none pr-8 cursor-pointer">
+                        <option value="{% url 'homepage' %}{% if current_technology %}?technology={{ current_technology }}{% endif %}">Filter by Industry</option>
+                        <option value="{% url 'homepage' %}{% if current_technology %}?technology={{ current_technology }}{% endif %}"
+                                {% if not current_industry %}selected{% endif %}>All Industries</option>
+                        {% for industry in all_industries %}
+                            <option value="{% url 'homepage' %}?industry={{ industry|urlencode }}{% if current_technology %}&technology={{ current_technology }}{% endif %}"
+                                    {% if current_industry == industry %}selected{% endif %}>{{ industry }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
+                        <i class="fas fa-angle-down"></i>
+                    </div>
+                </div>
+
+                {# Clear Filters Button #}
+                {% if current_technology or current_industry %}
+                    <a href="{% url 'homepage' %}#portfolio" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-full hover:bg-gray-400 transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2">
+                        Clear Filters <i class="fas fa-times ml-2"></i>
+                    </a>
+                {% endif %}
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8">
                 {% for project in projects %}
                 <div class="bg-white rounded-lg shadow-md p-6 transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100">
@@ -88,55 +118,65 @@
                     {% if project.technologies.all %}
                     <div class="flex flex-wrap justify-center gap-2 mb-4">
                         {% for tech in project.technologies.all %}
-                        <span class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+                        {# Make technology tags clickable filters #}
+                        <a href="{% url 'homepage' %}?technology={{ tech.slug }}{% if current_industry %}&industry={{ current_industry }}{% endif %}#portfolio"
+                           class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full hover:bg-blue-200 transition duration-300">
                             {% if tech.icon_class %}<i class="{{ tech.icon_class }} mr-1"></i>{% endif %}{{ tech.name }}
-                        </span>
+                        </a>
                         {% endfor %}
                     </div>
                     {% endif %}
-                    {% if project.project_url %}
-                    <a href="{% url 'portfolio_detail' %}" class="inline-block text-blue-600 hover:text-blue-800 font-medium transition duration-300">
-                        View Project <i class="fas fa-external-link-alt ml-1 text-sm"></i>
+                    <a href="{% url 'portfolio_detail' pk=project.pk %}" class="inline-block text-blue-600 hover:text-blue-800 font-medium transition duration-300">
+                        View Details <i class="fas fa-arrow-right ml-1 text-sm"></i>
                     </a>
-                    {% endif %}
                 </div>
                 {% empty %}
-                <p class="col-span-full text-gray-500">No projects added yet. Please add projects via Django Admin.</p>
+                <p class="col-span-full text-gray-500">No projects found matching your criteria. Try adjusting filters.</p>
                 {% endfor %}
             </div>
         </section>
 
-        <!-- Placeholder Section (example of new content on homepage) -->
-        <section class="mb-16 py-12 bg-white rounded-xl shadow-lg border border-gray-100">
-            <h2 class="text-4xl font-bold text-gray-900 mb-12">Why Choose Us?</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 px-8">
-                <div class="bg-gray-50 rounded-lg p-6 shadow-md border border-gray-100">
-                    <div class="text-green-500 text-5xl mb-4"><i class="fas fa-handshake"></i></div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Client-Centric Approach</h3>
-                    <p class="text-gray-600">We prioritize your vision and success in every project.</p>
+        <!-- Testimonials Section -->
+        <section id="testimonials" class="mb-16 py-12 bg-white rounded-xl shadow-lg border border-gray-100">
+            <h2 class="text-4xl font-bold text-gray-900 mb-12">What Our Clients Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8">
+                {% for testimonial in testimonials %}
+                <div class="bg-gray-50 rounded-lg p-6 shadow-md transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100 flex flex-col">
+                    <p class="text-lg text-gray-700 italic mb-4 flex-grow">"{{ testimonial.quote }}"</p>
+                    <div class="text-yellow-500 mb-2">
+                        {# Filled stars #}
+                        {% for _ in "12345"|slice:":testimonial.rating" %}
+                            <i class="fas fa-star"></i>
+                        {% endfor %}
+                        {# Empty stars #}
+                        {% for _ in "12345"|slice:testimonial.rating %}
+                            <i class="far fa-star"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="font-semibold text-gray-900 text-xl">{{ testimonial.client_name }}</p>
+                    {% if testimonial.role or testimonial.company_name %}
+                    <p class="text-gray-600 text-md">
+                        {% if testimonial.role %}{{ testimonial.role }}{% endif %}
+                        {% if testimonial.role and testimonial.company_name %}, {% endif %}
+                        {% if testimonial.company_name %}{{ testimonial.company_name }}{% endif %}
+                    </p>
+                    {% endif %}
                 </div>
-                <div class="bg-gray-50 rounded-lg p-6 shadow-md border border-gray-100">
-                    <div class="text-purple-500 text-5xl mb-4"><i class="fas fa-lightbulb"></i></div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Innovative Solutions</h3>
-                    <p class="text-gray-600">Leveraging the latest tech to solve complex challenges.</p>
-                </div>
-                <div class="bg-white rounded-lg p-6 shadow-md border border-gray-100">
-                    <div class="text-orange-500 text-5xl mb-4"><i class="fas fa-medal"></i></div>
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-3">Quality & Reliability</h3>
-                    <p class="text-gray-600">Delivering robust software that stands the test of time.</p>
-                </div>
+                {% empty %}
+                <p class="col-span-full text-gray-500">No testimonials approved yet. Check back soon!</p>
+                {% endfor %}
             </div>
         </section>
-    </main>
 
-    <footer class="bg-gray-800 text-white py-8 px-6 md:px-12 text-center rounded-t-xl mt-16">
-        <div class="container mx-auto">
-            <p>&copy; 2025 {{ company_name }}. All rights reserved.</p>
-            <div class="flex justify-center space-x-6 mt-4">
-                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Privacy Policy</a>
-                <a href="#" class="text-gray-400 hover:text-white transition duration-300">Terms of Service</a>
-            </div>
-        </div>
-    </footer>
-</body>
-</html>
+        <!-- Contact Section -->
+        <section id="contact" class="py-12 bg-white rounded-xl shadow-lg border border-gray-100">
+            <h2 class="text-4xl font-bold text-gray-900 mb-8">Get in Touch with MetaStack</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+                Have a project in mind or just want to say hello? Reach out to us!
+            </p>
+            <a href="{% url 'contact' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition duration-300 hover:scale-105">
+                Send a Message <i class="fas fa-envelope ml-2"></i>
+            </a>
+        </section>
+    </div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block title %}{{ service.title }} - {{ company_name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 md:py-16">
+    <div class="bg-white rounded-lg shadow-xl overflow-hidden md:flex flex-col lg:flex-row">
+        {# Service Image/Icon Section #}
+        <div class="md:w-full lg:w-1/2 p-6 flex items-center justify-center bg-gray-50">
+            {% if service.image %}
+                <img src="{{ service.image.url }}" alt="{{ service.title }}" class="rounded-lg max-h-96 object-contain shadow-md">
+            {% elif service.icon_class %}
+                <div class="text-blue-600 text-8xl p-8 bg-blue-50 rounded-full shadow-lg">
+                    <i class="{{ service.icon_class }}"></i>
+                </div>
+            {% else %}
+                {# Placeholder image if neither image nor icon is available #}
+                <img src="https://placehold.co/600x400/e0e0e0/505050?text=Service+Image" alt="Service Placeholder" class="rounded-lg max-h-96 object-contain shadow-md">
+            {% endif %}
+        </div>
+
+        {# Service Details Section #}
+        <div class="md:w-full lg:w-1/2 p-8">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">{{ service.title }}</h1>
+            <p class="text-lg md:text-xl text-gray-700 mb-6">{{ service.short_description }}</p>
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-3">Overview</h2>
+            <p class="text-gray-600 leading-relaxed mb-6">{{ service.detailed_description|linebreaksbr }}</p>
+
+            {% if processed_key_features %}
+                <h3 class="text-2xl font-bold text-gray-800 mb-3">Key Features</h3>
+                <ul class="list-none space-y-2 mb-6">
+                    {% for feature in processed_key_features %}
+                        <li class="flex items-center text-gray-700">
+                            <i class="fas fa-check-circle text-blue-500 mr-3 text-lg"></i>
+                            <span>{{ feature }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <div class="mt-8 flex justify-center lg:justify-start">
+                <a href="{% url 'contact' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition duration-300 hover:scale-105">
+                    Discuss Your Project <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {# Back to Services Link #}
+    <div class="text-center mt-12">
+        <a href="{% url 'homepage' %}#services" class="text-blue-600 hover:text-blue-800 font-semibold inline-flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Services
+        </a>
+    </div>
+</div>
+{% endblock %}

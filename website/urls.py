@@ -2,8 +2,13 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.homepage, name='homepage'), # Maps the root of this app to the homepage view
-    path('about/', views.about_us, name='about'), # URL for the About Us page
-    path('contact/', views.contact_page, name='contact'), # URL for the Contact page
-    path('portfolio-detail/', views.portfolio_detail, name='portfolio_detail'), # URL for a generic portfolio detail
+    path('', views.homepage, name='homepage'),
+    path('about/', views.about_us, name='about'),
+    path('contact/', views.contact_page, name='contact'),
+    path('portfolio/<int:pk>/', views.portfolio_detail, name='portfolio_detail'),
+    path('blog/', views.blog_list, name='blog_list'),
+    path('blog/<str:slug>/', views.blog_detail, name='blog_detail'),
+    path('team/', views.our_team, name='our_team'),
+    path('service/<str:slug>/', views.service_detail, name='service_detail'),
+    path('subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'), # NEW URL for newsletter subscription
 ]

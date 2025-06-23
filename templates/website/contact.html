@@ -45,9 +45,21 @@
 
         <section class="bg-white rounded-xl shadow-lg border border-gray-100 p-8 max-w-2xl mx-auto mb-16">
             <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Send Us a Message</h2>
-            <form action="#" method="POST">
-                <!-- Django CSRF Token (important for security) -->
-                <!-- {% csrf_token %} -->
+
+            <!-- Message Area for Success/Error -->
+            {% if messages %}
+            <ul class="messages mb-6">
+                {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }} p-3 rounded-md text-center {% if 'success' in message.tags %}bg-green-100 text-green-800{% elif 'error' in message.tags %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}"{% endif %}>
+                    {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            <form action="{% url 'contact' %}" method="POST">
+                <!-- Django CSRF Token (IMPORTANT for security) -->
+                {% csrf_token %}
                 <div class="mb-4">
                     <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Name:</label>
                     <input type="text" id="name" name="name" placeholder="Your Full Name"
