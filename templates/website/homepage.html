@@ -1,183 +1,420 @@
-{% extends 'website/base.html' %}
-{% load static %} {# It's still good practice to load static here, even if base.html does, for any static assets specific to this template #}
+{# templates/website/base.html #}
 
-{% block title %}{{ company_name }} - Crafting Innovative Software Solutions{% endblock title %} {# Override base title #}
+{% load static %}
+{% load website_tags %}
 
-{% block content %}
-    <div class="container mx-auto px-6 py-16 text-center">
-        <section class="mb-16">
-            <h1 class="text-5xl md:text-6xl font-extrabold text-blue-800 mb-6 leading-tight rounded-md p-3">
-                Crafting <span class="text-blue-600">Innovative Software</span> Solutions
-            </h1>
-            <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Empowering businesses with cutting-edge technology and exceptional user experiences.
-            </p>
-            <a href="{% url 'contact' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-full shadow-lg transform transition duration-300 hover:scale-105">
-                Get a Quote
-            </a>
-        </section>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MetaStack Web Technologies{% endblock %}</title>
+    
+    <!-- Tailwind CSS (Updated to latest CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Custom Favicon -->
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
 
-        <!-- Services Section -->
-        <section id="services" class="mb-16 py-12 bg-white rounded-xl shadow-lg border border-gray-100">
-            <h2 class="text-4xl font-bold text-gray-900 mb-12">Our Services</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8">
-                {% for service in services %}
-                {# Only link if service has a slug; otherwise, display as a non-clickable card #}
-                {% if service.slug %}
-                    <a href="{% url 'service_detail' slug=service.slug %}" class="block"> {# MODIFICATION: Added slug argument for service_detail #}
-                        <div class="bg-gray-50 rounded-lg p-6 shadow-md transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100 h-full flex flex-col justify-between">
-                            <div>
-                                <div class="text-blue-500 text-5xl mb-4">
-                                    <i class="{{ service.icon_class|default:'fas fa-cogs' }}"></i>
-                                </div>
-                                <h3 class="text-2xl font-semibold text-gray-900 mb-3">{{ service.title }}</h3>
-                                <p class="text-gray-600">{{ service.short_description }}</p>
-                            </div>
-                            <div class="mt-4 text-blue-600 hover:text-blue-800 font-medium">
-                                Learn More <i class="fas fa-arrow-right ml-1 text-sm"></i>
-                            </div>
-                        </div>
+    <!-- Alpine.js for interactivity -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* --- NEW BLUE/MINT COLOR SCHEME --- */
+        :root {
+            --color-primary-light: #00FFDD;
+            --color-primary-dark: #4F75FF;
+        }
+
+        /* Style for the active navigation link */
+        .nav-link-active {
+            background-color: white;
+            color: var(--color-primary-dark);
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Header scrolled state */
+        .header-scrolled {
+            background-color: var(--color-primary-dark);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        
+        #main-header {
+            transition: padding 0.3s ease-in-out, background-image 0.3s ease-in-out;
+        }
+        #main-header .logo-img {
+            transition: height 0.3s ease-in-out;
+        }
+        #main-header .company-name-text {
+            transition: font-size 0.3s ease-in-out;
+        }
+
+        .header-shrunk {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            background-image: none;
+            background-color: var(--color-primary-dark);
+        }
+        .header-shrunk .logo-img { height: 48px; }
+        .header-shrunk .company-name-text { font-size: 1.5rem; }
+
+        .header-compressed {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+            background-image: none;
+            background-color: var(--color-primary-dark);
+        }
+        .header-compressed .logo-img { height: 40px; }
+        .header-compressed .company-name-text { font-size: 1.25rem; }
+
+
+        /* Custom animation for header entrance */
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .animate-slide-in-down {
+            animation: slideInDown 0.6s ease-out forwards;
+        }
+
+        .text-shadow-sm {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- COPILOT STYLES --- */
+        .copilot-chat-window {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid var(--color-primary-dark);
+        }
+
+        @keyframes wave-animation {
+            0% { transform: rotate( 0.0deg) }
+            10% { transform: rotate(14.0deg) }
+            20% { transform: rotate(-8.0deg) }
+            30% { transform: rotate(14.0deg) }
+            40% { transform: rotate(-4.0deg) }
+            50% { transform: rotate(10.0deg) }
+            60% { transform: rotate( 0.0deg) }
+            100% { transform: rotate( 0.0deg) }
+        }
+        .animate-wave {
+            animation: wave-animation 2.5s ease-in-out infinite;
+            transform-origin: 70% 70%;
+            display: inline-block;
+        }
+
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans flex flex-col min-h-screen">
+
+    <!-- Header Section -->
+    <header id="main-header" class="text-white shadow-lg sticky top-0 z-50 animate-slide-in-down" style="background-image: linear-gradient(to right, var(--color-primary-dark), var(--color-primary-light));">
+        <div class="container mx-auto px-6 py-2">
+            <nav class="flex items-center justify-between">
+                <!-- Logo and Company Name -->
+                <div class="flex items-center">
+                    <a href="{% url 'homepage' %}" class="flex items-center transform transition duration-300 hover:scale-105">
+                        <img src="{% static 'images/company_logo.png' %}" alt="MetaStack Company Logo" class="logo-img" style="height: 64px; width: auto; margin-right: 1rem;" onerror="this.onerror=null;this.src='https://placehold.co/64x64/FF0000/FFFFFF?text=ERROR';">
+                        <span class="text-3xl font-bold text-shadow-sm company-name-text">{{ company_name }}</span>
                     </a>
-                {% else %}
-                    {# Display as a non-clickable card if slug is missing, with a visual indicator #}
-                    <div class="bg-gray-50 rounded-lg p-6 shadow-md border border-gray-100 h-full flex flex-col justify-between opacity-70 cursor-not-allowed">
-                        <div>
-                            <div class="text-blue-500 text-5xl mb-4">
-                                <i class="{{ service.icon_class|default:'fas fa-cogs' }}"></i>
-                            </div>
-                            <h3 class="text-2xl font-semibold text-gray-900 mb-3">{{ service.title|default:"Unnamed Service" }}</h3>
-                            <p class="text-gray-600">{{ service.short_description|default:"No description available." }}</p>
-                        </div>
-                        <div class="mt-4 text-red-600 font-medium text-sm">
-                            Detail page not available (missing slug)
+                </div>
+
+                <!-- MODIFICATION: Rebuilt desktop navigation with all dropdowns -->
+                <div class="hidden md:flex items-center space-x-2">
+                    <a href="{% url 'homepage' %}" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% is_active request 'homepage' %}">Home</a>
+                    
+                    <!-- About Us Dropdown -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @mouseover="open = true" @mouseleave="open = false" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% is_active request 'about' %} flex items-center">
+                            About Us <i class="fas fa-angle-down ml-1 text-xs"></i>
+                        </button>
+                        <div x-show="open" @mouseover="open = true" @mouseleave="open = false" x-transition class="absolute mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                            <a href="{% url 'about' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Our Company</a>
+                            <a href="{% url 'team' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Our Team</a>
                         </div>
                     </div>
-                {% endif %}
-                {% empty %}
-                <p class="col-span-full text-gray-500">No services added yet. Please add services via Django Admin.</p>
-                {% endfor %}
-            </div>
-        </section>
 
-        <!-- Projects/Portfolio Section -->
-        <section id="portfolio" class="mb-16 py-12 bg-gray-100 rounded-xl shadow-lg border border-gray-200">
-            <h2 class="text-4xl font-bold text-gray-900 mb-8">Our Latest Projects</h2>
+                    <!-- Services Dropdown -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @mouseover="open = true" @mouseleave="open = false" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% is_active request 'services' %} flex items-center">
+                            Services <i class="fas fa-angle-down ml-1 text-xs"></i>
+                        </button>
+                        <div x-show="open" @mouseover="open = true" @mouseleave="open = false" x-transition class="absolute mt-2 w-60 bg-white rounded-md shadow-lg py-1 z-20">
+                            {% get_all_services as all_services %}
+                            {% for service in all_services %}
+                                <a href="{% url 'service_detail' service.slug %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ service.title }}</a>
+                            {% endfor %}
+                             <a href="{% url 'services' %}" class="block px-4 py-2 text-sm font-bold text-blue-600 hover:bg-gray-100 border-t mt-1 pt-1">View All Services</a>
+                        </div>
+                    </div>
 
-            <!-- Portfolio Filters -->
-            <div class="flex flex-wrap justify-center gap-4 mb-8 px-4">
-                {# Technology Filters #}
-                <div class="relative group">
-                    <button class="bg-blue-500 text-white px-5 py-2 rounded-full hover:bg-blue-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                        Filter by Technology <i class="fas fa-angle-down ml-2"></i>
+                    <!-- Portfolio Dropdown -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @mouseover="open = true" @mouseleave="open = false" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% is_active request 'portfolio' %} flex items-center">
+                            Portfolio <i class="fas fa-angle-down ml-1 text-xs"></i>
+                        </button>
+                        <div x-show="open" @mouseover="open = true" @mouseleave="open = false" x-transition class="absolute mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                            <a href="{% url 'portfolio' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Projects</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Case Studies</a>
+                        </div>
+                    </div>
+
+                    <!-- Blog Dropdown -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @mouseover="open = true" @mouseleave="open = false" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% is_active request 'blog_list' %} flex items-center">
+                            Blog <i class="fas fa-angle-down ml-1 text-xs"></i>
+                        </button>
+                        <div x-show="open" @mouseover="open = true" @mouseleave="open = false" x-transition class="absolute mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                            <a href="{% url 'blog_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Posts</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">By Category</a>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'contact' %}" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% is_active request 'contact' %}">Contact</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden" x-data="{ open: false }">
+                    <button @click="open = !open" class="text-white focus:outline-none transition-transform duration-300" :class="{'rotate-90': open}">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
                     </button>
-                    <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-lg mt-2 py-2 w-48 text-left z-10">
-                        <a href="{% url 'homepage' %}{% if current_industry %}?industry={{ current_industry }}{% endif %}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">All Technologies</a>
-                        {% for tech in all_technologies %}
-                            <a href="{% url 'homepage' %}?technology={{ tech.slug }}{% if current_industry %}&industry={{ current_industry }}{% endif %}"
-                               class="block px-4 py-2 text-gray-800 hover:bg-gray-100 {% if current_technology == tech.slug %}bg-blue-100 text-blue-800 font-semibold{% endif %}">
-                                {% if tech.icon_class %}<i class="{{ tech.icon_class }} mr-2"></i>{% endif %}{{ tech.name }}
-                            </a>
-                        {% endfor %}
+                    <div x-show="open" @click.away="open = false" class="absolute top-full left-0 w-full shadow-lg py-2" style="background-color: var(--color-primary-dark);">
+                        <a href="{% url 'homepage' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">Home</a>
+                        <a href="{% url 'about' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">About</a>
+                        <a href="{% url 'services' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">Services</a>
+                        <a href="{% url 'portfolio' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">Portfolio</a>
+                        <a href="{% url 'blog_list' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">Blog</a>
+                        <a href="{% url 'contact' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">Contact</a>
                     </div>
                 </div>
+            </nav>
+        </div>
+    </header>
 
-                {# Industry Filters (using a select dropdown for better handling of many options) #}
-                <div class="relative">
-                    <select onchange="window.location.href = this.value;"
-                            class="bg-blue-500 text-white px-5 py-2 rounded-full hover:bg-blue-600 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 appearance-none pr-8 cursor-pointer">
-                        <option value="{% url 'homepage' %}{% if current_technology %}?technology={{ current_technology }}{% endif %}">Filter by Industry</option>
-                        <option value="{% url 'homepage' %}{% if current_technology %}?technology={{ current_technology }}{% endif %}"
-                                {% if not current_industry %}selected{% endif %}>All Industries</option>
-                        {% for industry in all_industries %}
-                            <option value="{% url 'homepage' %}?industry={{ industry|urlencode }}{% if current_technology %}&industry={{ current_technology }}{% endif %}"
-                                    {% if current_industry == industry %}selected{% endif %}>{{ industry }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
-                        <i class="fas fa-angle-down"></i>
-                    </div>
-                </div>
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
 
-                {# Clear Filters Button #}
-                {% if current_technology or current_industry %}
-                    <a href="{% url 'homepage' %}#portfolio" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-full hover:bg-gray-400 transition duration-300 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2">
-                        Clear Filters <i class="fas fa-times ml-2"></i>
-                    </a>
-                {% endif %}
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8">
-                {% for project in projects %}
-                <div class="bg-white rounded-lg shadow-md p-6 transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100">
-                    {% if project.image %}
-                    <img src="{{ project.image.url }}" alt="{{ project.title }}" class="w-full h-48 object-cover rounded-md mb-4">
-                    {% else %}
-                    <img src="https://placehold.co/400x200/e0e0e0/505050?text=Project+Image" alt="Placeholder" class="w-full h-48 object-cover rounded-md mb-4">
-                    {% endif %}
-                    <h3 class="text-2xl font-semibold text-gray-900 mb-2">{{ project.title }}</h3>
-                    <p class="text-gray-600 mb-3">{{ project.short_description }}</p>
-                    {% if project.technologies.all %}
-                    <div class="flex flex-wrap justify-center gap-2 mb-4">
-                        {% for tech in project.technologies.all %}
-                        {# Make technology tags clickable filters #}
-                        <a href="{% url 'homepage' %}?technology={{ tech.slug }}{% if current_industry %}&industry={{ current_industry }}{% endif %}#portfolio"
-                           class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full hover:bg-blue-200 transition duration-300">
-                            {% if tech.icon_class %}<i class="{{ tech.icon_class }} mr-1"></i>{% endif %}{{ tech.name }}
-                        </a>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    <a href="{% url 'portfolio_detail' pk=project.pk %}" class="inline-block text-blue-600 hover:text-blue-800 font-medium transition duration-300">
-                        View Details <i class="fas fa-arrow-right ml-1 text-sm"></i>
-                    </a>
-                </div>
-                {% empty %}
-                <p class="col-span-full text-gray-500">No projects found matching your criteria. Try adjusting filters.</p>
-                {% endfor %}
-            </div>
-        </section>
-
-        <!-- Testimonials Section -->
-        <section id="testimonials" class="mb-16 py-12 bg-white rounded-xl shadow-lg border border-gray-100">
-            <h2 class="text-4xl font-bold text-gray-900 mb-12">What Our Clients Say</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8">
-                {% for testimonial in testimonials %}
-                <div class="bg-gray-50 rounded-lg p-6 shadow-md transform transition duration-300 hover:scale-105 hover:shadow-xl border border-gray-100 flex flex-col">
-                    <p class="text-lg text-gray-700 italic mb-4 flex-grow">"{{ testimonial.quote }}"</p>
-                    <div class="text-yellow-500 mb-2">
-                        {# Filled stars #}
-                        {% for _ in "12345"|slice:":testimonial.rating" %}
-                            <i class="fas fa-star"></i>
-                        {% endfor %}
-                        {# Empty stars #}
-                        {% for _ in "12345"|slice:testimonial.rating %}
-                            <i class="far fa-star"></i>
-                        {% endfor %}
-                    </div>
-                    <p class="font-semibold text-gray-900 text-xl">{{ testimonial.client_name }}</p>
-                    {% if testimonial.role or testimonial.company_name %}
-                    <p class="text-gray-600 text-md">
-                        {% if testimonial.role %}{{ testimonial.role }}{% endif %}
-                        {% if testimonial.role and testimonial.company_name %}, {% endif %}
-                        {% if testimonial.company_name %}{{ testimonial.company_name }}{% endif %}
+    <footer class="bg-gray-800 text-white mt-auto">
+        <div class="container mx-auto px-6 py-10">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">MetaStack</h3>
+                    <p class="text-gray-400">
+                        Crafting innovative web solutions to elevate your business. From elegant designs to powerful backends, we build for the future.
                     </p>
-                    {% endif %}
                 </div>
-                {% empty %}
-                <p class="col-span-full text-gray-500">No testimonials approved yet. Check back soon!</p>
-                {% endfor %}
-            </div>
-        </section>
 
-        <!-- Contact Section -->
-        <section id="contact" class="py-12 bg-white rounded-xl shadow-lg border border-gray-100">
-            <h2 class="text-4xl font-bold text-gray-900 mb-8">Get in Touch with MetaStack</h2>
-            <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-                Have a project in mind or just want to say hello? Reach out to us!
-            </p>
-            <a href="{% url 'contact' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition duration-300 hover:scale-105">
-                Send a Message <i class="fas fa-envelope ml-2"></i>
-            </a>
-        </section>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'about' %}" class="hover:text-gray-300">About Us</a></li>
+                        <li><a href="{% url 'services' %}" class="hover:text-gray-300">Services</a></li>
+                        <li><a href="{% url 'contact' %}" class="hover:text-gray-300">Contact</a></li>
+                        <li><a href="#" class="hover:text-gray-300">Privacy Policy</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in fa-lg"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Stay Updated</h3>
+                    <p class="text-gray-400 mb-4">Subscribe to our newsletter for the latest news and updates.</p>
+                    <form action="{% url 'subscribe_newsletter' %}" method="post">
+                        {% csrf_token %}
+                        <div class="flex">
+                            <input type="email" name="email" class="w-full rounded-l-md px-4 py-2 text-gray-800" placeholder="Enter your email" required>
+                            <button type="submit" class="text-white rounded-r-md px-4 py-2 font-semibold" style="background-color: var(--color-primary-dark); transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#00FFDD'" onmouseout="this.style.backgroundColor='var(--color-primary-dark)'">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-10 border-t border-gray-700 pt-6 text-center text-gray-400">
+                <p>&copy; {% current_year %} {{ company_name }}. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <button id="to-top-button" class="hidden fixed bottom-8 right-8 text-white p-3 rounded-full shadow-lg z-50" style="background-color: var(--color-primary-dark); transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#00FFDD'" onmouseout="this.style.backgroundColor='var(--color-primary-dark)'">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <div id="copilot-container" class="fixed bottom-5 right-5 z-[9999]" x-data="{ open: false, showBanner: true }">
+        <div x-show="showBanner && !open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="speech-bubble absolute bottom-[75px] right-0 mb-2 w-max max-w-xs p-3 rounded-lg text-white shadow-lg flex items-center" style="background-color: var(--color-primary-dark);">
+            <i class="fas fa-handshake text-xl animate-wave mr-3" style="color: var(--color-primary-light);"></i>
+            <span class="text-sm font-semibold">We are here to help!</span>
+            <button @click="showBanner = false" class="ml-4 text-white hover:text-gray-200">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <div x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" id="copilot-chat-window" class="absolute bottom-[80px] right-0 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 transform origin-bottom-right">
+            <div class="flex justify-between items-center p-3 text-white rounded-t-lg" style="background-color: var(--color-primary-dark);">
+                <h3 class="font-bold text-sm">MetaStack Assistant</h3>
+                <button @click="open = false" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="copilot-messages" class="p-4 h-80 overflow-y-auto">
+                <div class="mb-3">
+                    <div class="bg-gray-200 text-gray-800 text-sm p-2 rounded-lg inline-block max-w-[85%]">
+                        Hello! How can I help you with our services today?
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-200 flex">
+                <input type="text" id="copilot-input" placeholder="Ask about our services..." class="flex-grow w-full px-3 py-2 text-sm border border-gray-300 rounded-l-md focus:outline-none focus:ring-2" style="--tw-ring-color: var(--color-primary-dark);">
+                <button id="send-copilot-message" class="text-white px-4 rounded-r-md" style="background-color: var(--color-primary-dark);">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <button @click="open = !open; showBanner = false" id="open-copilot" class="text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform" style="background-color: var(--color-primary-dark);">
+            <i class="fas fa-robot text-2xl"></i>
+        </button>
     </div>
-{% endblock content %}
+
+    <script>
+        // Back to top button script
+        const toTopButton = document.getElementById('to-top-button');
+        if (toTopButton) {
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    toTopButton.classList.remove('hidden');
+                } else {
+                    toTopButton.classList.add('hidden');
+                }
+            });
+            toTopButton.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    </script>
+    
+    {% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const sendButton = document.getElementById('send-copilot-message');
+            const messageInput = document.getElementById('copilot-input');
+            const messagesContainer = document.getElementById('copilot-messages');
+            
+            // MODIFICATION: Added new header scroll logic
+            const mainHeader = document.getElementById('main-header');
+            let lastScrollTop = 0;
+            if (mainHeader) {
+                window.addEventListener('scroll', function() {
+                    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    if (scrollTop > 50) { 
+                        if (scrollTop > lastScrollTop) {
+                            // Scrolling Down
+                            mainHeader.classList.add('header-compressed');
+                            mainHeader.classList.remove('header-shrunk');
+                        } else {
+                            // Scrolling Up
+                            mainHeader.classList.add('header-shrunk');
+                            mainHeader.classList.remove('header-compressed');
+                        }
+                    } else {
+                        // At the top of the page
+                        mainHeader.classList.remove('header-shrunk', 'header-compressed');
+                    }
+                    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+                }, false);
+            }
+
+            function sendMessage() {
+                const userMessage = messageInput.value.trim();
+                if (userMessage === '') return;
+
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'mb-3 flex justify-end';
+                userMessageDiv.innerHTML = `<div class="text-white text-sm p-2 rounded-lg inline-block max-w-[85%]" style="background-color: var(--color-primary-dark);">${userMessage}</div>`;
+                messagesContainer.appendChild(userMessageDiv);
+                
+                messageInput.value = '';
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                setTimeout(() => {
+                    getBotResponse(userMessage);
+                }, 1000);
+            }
+
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            function getBotResponse(userInput) {
+                const lowerInput = userInput.toLowerCase();
+                const linkColor = 'var(--color-primary-dark)';
+                let botReply = "I'm not sure how to answer that. You can ask me about our services, pricing, or how to contact us.";
+
+                if (lowerInput.includes('hello') || lowerInput.includes('hi')) {
+                    botReply = "Hello there! How can I assist you today?";
+                } else if (lowerInput.includes('service')) {
+                    botReply = `We offer a wide range of services including Web Development, Mobile App Development, and Cloud & DevOps. You can see all of them on our <a href="{% url 'services' %}" style="color: ${linkColor};" class="underline">services page</a>.`;
+                } else if (lowerInput.includes('web')) {
+                    botReply = `Our Web Development service focuses on creating high-performance, responsive websites. Check out the <a href="/services/web-development/" style="color: ${linkColor};" class="underline">details here</a>.`;
+                } else if (lowerInput.includes('mobile') || lowerInput.includes('app')) {
+                    botReply = `We build intuitive native and cross-platform mobile applications. Learn more on the <a href="/services/mobile-app-development/" style="color: ${linkColor};" class="underline">mobile app development page</a>.`;
+                } else if (lowerInput.includes('contact') || lowerInput.includes('email')) {
+                    botReply = `You can get in touch with us through our <a href="{% url 'contact' %}" style="color: ${linkColor};" class="underline">Contact Page</a>.`;
+                } else if (lowerInput.includes('price') || lowerInput.includes('cost')) {
+                    botReply = "For pricing details, it's best to discuss your project with us directly. Please reach out via our contact page for a custom quote.";
+                } else if (lowerInput.includes('bye') || lowerInput.includes('thanks')) {
+                    botReply = "You're welcome! Have a great day.";
+                }
+
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'mb-3';
+                botMessageDiv.innerHTML = `<div class="bg-gray-200 text-gray-800 text-sm p-2 rounded-lg inline-block max-w-[85%]">${botReply}</div>`;
+                messagesContainer.appendChild(botMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        });
+    </script>
+    {% endblock %}
+</body>
+</html>

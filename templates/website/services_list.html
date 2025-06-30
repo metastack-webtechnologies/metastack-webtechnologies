@@ -1,0 +1,142 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block title %}Our Services - {{ company_name }}{% endblock %}
+
+{% block head %}
+{{ block.super }}
+<style>
+    /*
+      MODIFICATION: This CSS block handles the animations using a new, more robust method.
+    */
+
+    /* By default, all slides are completely removed from the layout to prevent overlap bugs. */
+    .service-slide {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    /* This is the starting state for the tile's animation. */
+    .animated-tile {
+        transform: scale(0.95);
+        opacity: 0;
+        transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+    }
+
+    /* When a slide is activated via the 'is-animating' class, the tile animates in. */
+    .is-animating .animated-tile {
+        transform: scale(1);
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="relative py-20 bg-cover bg-center" style="background-image: url('{% static 'images/services_background_1.avif' %}');">
+    <!-- Semi-transparent overlay for readability -->
+    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+
+    <!-- Container for content, positioned above the background -->
+    <div class="container mx-auto px-6 text-center relative z-10">
+        <div class="mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white">Our Services</h1>
+            <p class="text-lg text-gray-200 mt-4 max-w-3xl mx-auto">
+                We offer a wide range of services to bring your digital vision to life. From initial concept to final deployment, we are your dedicated partners in innovation.
+            </p>
+        </div>
+
+        <!-- Service Display Section -->
+        <div class="flex items-center justify-center space-x-4">
+            <!-- Previous Button -->
+            <button id="prev-service" class="text-white hover:text-blue-300 transition duration-300 p-4 rounded-full focus:outline-none bg-black bg-opacity-30 hover:bg-opacity-50">
+                <i class="fas fa-chevron-left fa-2x"></i>
+            </button>
+
+            <!-- Services Container -->
+            <div class="w-full max-w-2xl relative overflow-hidden" style="min-height: 350px;">
+                {% for service in services %}
+                <div id="service-{{ forloop.counter0 }}" class="service-slide">
+                    <!-- MODIFICATION: Changed 'bg-white' to 'bg-slate-50' and adjusted hover/border colors. -->
+                    <a href="{% url 'service_detail' service.slug %}" class="animated-tile block bg-slate-50 rounded-xl shadow-lg p-8 transform transition duration-300 ease-in-out border border-gray-200 h-full flex flex-col text-gray-800 hover:scale-105 hover:shadow-xl hover:bg-slate-100">
+                        <div class="flex-grow">
+                            <div class="text-blue-600 mb-5 text-5xl">
+                                <i class="{{ service.icon_class|default:'fas fa-cogs' }}"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-3 text-gray-900">{{ service.title }}</h3>
+                            <p class="text-gray-600">{{ service.short_description }}</p>
+                        </div>
+                        <div class="mt-6">
+                            <span class="font-semibold text-blue-600 hover:text-blue-800">
+                                Learn More <i class="fas fa-arrow-right ml-1"></i>
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-12">
+                    <p class="text-xl text-white">No services are available at the moment. Please check back later.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Next Button -->
+            <button id="next-service" class="text-white hover:text-blue-300 transition duration-300 p-4 rounded-full focus:outline-none bg-black bg-opacity-30 hover:bg-opacity-50">
+                <i class="fas fa-chevron-right fa-2x"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const services = document.querySelectorAll('.service-slide');
+        const prevButton = document.getElementById('prev-service');
+        const nextButton = document.getElementById('next-service');
+        
+        if (services.length > 0) {
+            let currentServiceIndex = 0;
+
+            // MODIFICATION: Rewritten function to robustly handle showing and animating one slide at a time.
+            function showService(index) {
+                // First, hide all slides to prevent any overlap.
+                services.forEach(service => {
+                    service.style.display = 'none';
+                    service.classList.remove('is-animating');
+                });
+
+                const activeSlide = services[index];
+                
+                // Make the current slide visible.
+                activeSlide.style.display = 'block';
+
+                // Use a tiny timeout. This forces the browser to apply 'display: block'
+                // BEFORE adding the animation class, which makes the animation play correctly.
+                setTimeout(() => {
+                    activeSlide.classList.add('is-animating');
+                }, 10);
+            }
+
+            // Show the first service when the page loads.
+            showService(currentServiceIndex);
+
+            nextButton.addEventListener('click', function() {
+                currentServiceIndex = (currentServiceIndex + 1) % services.length;
+                showService(currentServiceIndex);
+            });
+
+            prevButton.addEventListener('click', function() {
+                currentServiceIndex = (currentServiceIndex - 1 + services.length) % services.length;
+                showService(currentServiceIndex);
+            });
+        } else {
+            // Hide buttons if there are no services
+            if(prevButton) prevButton.style.display = 'none';
+            if(nextButton) nextButton.style.display = 'none';
+        }
+    });
+</script>
+
+{% endblock %}

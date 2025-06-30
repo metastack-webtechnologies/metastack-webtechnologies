@@ -1,0 +1,58 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block title %}{{ company_name }} - Our Portfolio{% endblock %}
+
+{% block content %}
+<section class="py-16 bg-gray-100">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">Our Work</h2>
+            <p class="text-lg md:text-xl text-gray-600 mt-4 max-w-3xl mx-auto">
+                Explore a selection of projects that showcase our skills and dedication to delivering excellence.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for project in projects %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
+                <a href="{% url 'portfolio_detail' project.pk %}" class="block">
+                    <div class="relative">
+                        <!-- 
+                          MODIFICATION: Added a check to ensure project.image exists.
+                          This prevents the "ValueError: The 'image' attribute has no file associated with it."
+                          by providing a placeholder if an image has not been uploaded for a project.
+                        -->
+                        {% if project.image %}
+                            <img src="{{ project.image.url }}" alt="{{ project.title }}" class="w-full h-56 object-cover">
+                        {% else %}
+                            <div class="w-full h-56 bg-gray-200 flex items-center justify-center">
+                                <span class="text-gray-500 italic">No image provided</span>
+                            </div>
+                        {% endif %}
+                        <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <span class="text-white text-lg font-semibold">View Project</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2 truncate">{{ project.title }}</h3>
+                        <p class="text-gray-600 text-sm mb-4">{{ project.summary|truncatewords:15 }}</p>
+                        <div class="flex flex-wrap gap-2">
+                            {% for tech in project.technologies.all %}
+                                <span class="bg-teal-100 text-teal-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ tech.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-16">
+                <i class="fas fa-paint-brush fa-3x text-gray-400 mb-4"></i>
+                <h3 class="text-2xl font-semibold text-gray-700">Portfolio Coming Soon</h3>
+                <p class="text-gray-500 mt-2">We are currently curating our best work to showcase here.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

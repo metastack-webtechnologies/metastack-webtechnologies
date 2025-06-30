@@ -3,56 +3,180 @@
 
 {% block title %}{{ service.title }} - {{ company_name }}{% endblock %}
 
+{% block head %}
+    {{ block.super }}
+    <style>
+        /* Scroll-triggered animation styles */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+{% endblock %}
+
+
 {% block content %}
-<div class="container mx-auto px-4 py-8 md:py-16">
-    <div class="bg-white rounded-lg shadow-xl overflow-hidden md:flex flex-col lg:flex-row">
-        {# Service Image/Icon Section #}
-        <div class="md:w-full lg:w-1/2 p-6 flex items-center justify-center bg-gray-50">
-            {% if service.image %}
-                <img src="{{ service.image.url }}" alt="{{ service.title }}" class="rounded-lg max-h-96 object-contain shadow-md">
-            {% elif service.icon_class %}
-                <div class="text-blue-600 text-8xl p-8 bg-blue-50 rounded-full shadow-lg">
-                    <i class="{{ service.icon_class }}"></i>
+<!-- Section 1: Main Service Hero -->
+<section class="py-20 lg:py-24 bg-white fade-in-section">
+    <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="text-left">
+                <h2 class="text-lg font-bold uppercase" style="color: var(--color-primary-dark);">{{ service.title }}</h2>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 mt-2">Drive Innovation with {{ service.title }}</h1>
+                
+                <div class="mt-4 border-l-4 pl-4" style="border-color: var(--color-primary-dark);">
+                    <p class="text-gray-600 leading-relaxed">
+                        At MetaStack Web Technologies, in the rapidly evolving digital environment, organizations must keep up with the latest innovations. We offer {{ service.title }} that steers organizations toward growth, efficiency, and innovation.
+                    </p>
                 </div>
-            {% else %}
-                {# Placeholder image if neither image nor icon is available #}
-                <img src="https://placehold.co/600x400/e0e0e0/505050?text=Service+Image" alt="Service Placeholder" class="rounded-lg max-h-96 object-contain shadow-md">
-            {% endif %}
-        </div>
 
-        {# Service Details Section #}
-        <div class="md:w-full lg:w-1/2 p-8">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">{{ service.title }}</h1>
-            <p class="text-lg md:text-xl text-gray-700 mb-6">{{ service.short_description }}</p>
-
-            <h2 class="text-2xl font-bold text-gray-800 mb-3">Overview</h2>
-            <p class="text-gray-600 leading-relaxed mb-6">{{ service.detailed_description|linebreaksbr }}</p>
-
-            {% if processed_key_features %}
-                <h3 class="text-2xl font-bold text-gray-800 mb-3">Key Features</h3>
-                <ul class="list-none space-y-2 mb-6">
-                    {% for feature in processed_key_features %}
-                        <li class="flex items-center text-gray-700">
-                            <i class="fas fa-check-circle text-blue-500 mr-3 text-lg"></i>
-                            <span>{{ feature }}</span>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-
-            <div class="mt-8 flex justify-center lg:justify-start">
-                <a href="{% url 'contact' %}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition duration-300 hover:scale-105">
-                    Discuss Your Project <i class="fas fa-arrow-right ml-2"></i>
-                </a>
+            </div>
+            <div>
+                {% if service.image %}
+                    <img src="{{ service.image.url }}" alt="{{ service.title }}" class="rounded-lg shadow-2xl w-full h-auto object-cover">
+                {% else %}
+                    <div class="w-full h-80 bg-gray-200 flex items-center justify-center rounded-lg">
+                        <span class="text-gray-500 text-xl">Service Image</span>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
+</section>
 
-    {# Back to Services Link #}
-    <div class="text-center mt-12">
-        <a href="{% url 'homepage' %}#services" class="text-blue-600 hover:text-blue-800 font-semibold inline-flex items-center">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Services
-        </a>
+<!-- "We Specialize In" Section -->
+<section class="py-20 lg:py-24 bg-gray-50 fade-in-section">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800">We Specialize In</h2>
+            <div class="mt-4 h-1.5 w-24 mx-auto rounded-full" style="background-color: var(--color-primary-dark);"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <!-- Specialization 1 -->
+            <div class="flex items-start space-x-4">
+                <div class="text-2xl pt-1" style="color: var(--color-primary-dark);"><i class="fas fa-store-alt"></i></div>
+                <div>
+                    <h3 class="font-bold text-lg">E-commerce Solutions</h3>
+                    <p class="text-gray-600 text-sm">Building powerful online stores with seamless checkout experiences and secure payment gateways.</p>
+                </div>
+            </div>
+            <!-- Specialization 2 -->
+            <div class="flex items-start space-x-4">
+                <div class="text-2xl pt-1" style="color: var(--color-primary-dark);"><i class="fas fa-users-cog"></i></div>
+                <div>
+                    <h3 class="font-bold text-lg">Custom CRM Systems</h3>
+                    <p class="text-gray-600 text-sm">Developing tailored Customer Relationship Management systems to streamline your sales and marketing.</p>
+                </div>
+            </div>
+            <!-- Specialization 3 -->
+            <div class="flex items-start space-x-4">
+                <div class="text-2xl pt-1" style="color: var(--color-primary-dark);"><i class="fas fa-project-diagram"></i></div>
+                <div>
+                    <h3 class="font-bold text-lg">API Integration</h3>
+                    <p class="text-gray-600 text-sm">Connecting your applications with third-party services to automate workflows and enhance functionality.</p>
+                </div>
+            </div>
+            <!-- Specialization 4 -->
+            <div class="flex items-start space-x-4">
+                <div class="text-2xl pt-1" style="color: var(--color-primary-dark);"><i class="fas fa-file-alt"></i></div>
+                <div>
+                    <h3 class="font-bold text-lg">Content Management Systems</h3>
+                    <p class="text-gray-600 text-sm">Creating easy-to-use CMS platforms that give you full control over your website's content.</p>
+                </div>
+            </div>
+            <!-- Specialization 5 -->
+            <div class="flex items-start space-x-4">
+                <div class="text-2xl pt-1" style="color: var(--color-primary-dark);"><i class="fas fa-cloud"></i></div>
+                <div>
+                    <h3 class="font-bold text-lg">Cloud-Native Applications</h3>
+                    <p class="text-gray-600 text-sm">Building scalable, resilient, and flexible applications designed specifically for the cloud environment.</p>
+                </div>
+            </div>
+            <!-- Specialization 6 -->
+            <div class="flex items-start space-x-4">
+                <div class="text-2xl pt-1" style="color: var(--color-primary-dark);"><i class="fas fa-tachometer-alt"></i></div>
+                <div>
+                    <h3 class="font-bold text-lg">Performance Optimization</h3>
+                    <p class="text-gray-600 text-sm">Analyzing and enhancing your application's speed and efficiency for a better user experience.</p>
+                </div>
+            </div>
+        </div>
     </div>
+</section>
+
+<!-- MODIFICATION: Rebuilt "Why Choose Us" section with stable 2-column grid -->
+<section class="py-20 lg:py-24 bg-white">
+    <div class="container mx-auto px-6 fade-in-section">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <div>
+                <img src="https://placehold.co/600x700/00FFDD/1A2C4B?text=Why+Us" alt="Why Choose MetaStack" class="rounded-lg shadow-xl w-full h-auto object-cover">
+            </div>
+            <div class="text-left">
+                <div class="mb-12">
+                    <h2 class="text-3xl font-bold uppercase text-gray-800">WHY CHOOSE US FOR {{ service.title|upper }}?</h2>
+                    <div class="mt-4 h-1.5 w-24 rounded-full" style="background-color: var(--color-primary-dark);"></div>
+                </div>
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">01. Experienced Consultants</h3>
+                        <p class="text-gray-600">We deliver targeted IT consulting services that might be targeted at your company’s specific difficulties and possibilities.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">02. Customized Solutions</h3>
+                        <p class="text-gray-600">We have a record of helping groups in diverse enterprise sectors achieve their IT goals while promoting creativity and performance.</p>
+                    </div>
+                     <div>
+                        <h3 class="font-bold text-xl text-gray-800 mb-2">03. Proven Success</h3>
+                        <p class="text-gray-600">We have a record of helping groups in diverse enterprise sectors achieve their IT goals while promoting creativity and performance.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">04. Comprehensive Support</h3>
+                        <p class="text-gray-600">From method to implementation and ongoing aid, we provide comprehensive IT consulting services that assure long-term achievement.</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">05. Partner with MetaStack for Success</h3>
+                        <p class="text-gray-600">Are you geared up to grow your enterprise with skilled IT consulting? Contact MetaStack Technologies today to learn more about our IT consulting offerings.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Back to Services Link -->
+<div class="text-center py-12 bg-gray-50">
+    <a href="{% url 'services' %}" class="font-semibold transition-colors duration-300" style="color: var(--color-primary-dark);">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back to All Services
+    </a>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('.fade-in-section');
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+});
+</script>
 {% endblock %}

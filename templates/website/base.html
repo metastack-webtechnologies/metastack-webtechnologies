@@ -1,109 +1,415 @@
+{# templates/website/base.html #}
+
 {% load static %}
+{% load website_tags %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MetaStack Web Technologies{% endblock %}</title>
-    <!-- Favicon -->
-    <link rel="icon" href="{% static 'images/company_logo.png' %}" type="image/png"> {# Added favicon link #}
-    {# Tailwind CSS CDN #}
+    
+    <!-- Tailwind CSS (Updated to latest CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    {# Font Awesome CDN for icons #}
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    {# Link to your custom static CSS if you have one #}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <!-- Custom Favicon -->
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+
+    <!-- Alpine.js for interactivity -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
     <style>
-        /* Custom CSS for Inter font and general styling (from previous versions) */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+        html {
+            scroll-behavior: smooth;
         }
+
+        /* --- NEW BLUE/MINT COLOR SCHEME --- */
+        :root {
+            --color-primary-light: #00FFDD;
+            --color-primary-dark: #4F75FF;
+        }
+
+        /* Style for the active navigation link */
+        .nav-link-active {
+            background-color: white;
+            color: var(--color-primary-dark);
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Header scrolled state */
+        .header-scrolled {
+            background-color: var(--color-primary-dark);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+            transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        
+        #main-header {
+            transition: padding 0.3s ease-in-out, background-image 0.3s ease-in-out;
+        }
+        #main-header .logo-img {
+            transition: height 0.3s ease-in-out;
+        }
+        #main-header .company-name-text {
+            transition: font-size 0.3s ease-in-out;
+        }
+
+        .header-shrunk {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            background-image: none;
+            background-color: var(--color-primary-dark);
+        }
+        .header-shrunk .logo-img { height: 48px; }
+        .header-shrunk .company-name-text { font-size: 1.5rem; }
+
+        .header-compressed {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+            background-image: none;
+            background-color: var(--color-primary-dark);
+        }
+        .header-compressed .logo-img { height: 40px; }
+        .header-compressed .company-name-text { font-size: 1.25rem; }
+
+
+        /* Custom animation for header entrance */
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .animate-slide-in-down {
+            animation: slideInDown 0.6s ease-out forwards;
+        }
+
+        .text-shadow-sm {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- COPILOT STYLES --- */
+        .copilot-chat-window {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid var(--color-primary-dark);
+        }
+
+        @keyframes wave-animation {
+            0% { transform: rotate( 0.0deg) }
+            10% { transform: rotate(14.0deg) }
+            20% { transform: rotate(-8.0deg) }
+            30% { transform: rotate(14.0deg) }
+            40% { transform: rotate(-4.0deg) }
+            50% { transform: rotate(10.0deg) }
+            60% { transform: rotate( 0.0deg) }
+            100% { transform: rotate( 0.0deg) }
+        }
+        .animate-wave {
+            animation: wave-animation 2.5s ease-in-out infinite;
+            transform-origin: 70% 70%;
+            display: inline-block;
+        }
+
     </style>
+    {% block head %}{% endblock %}
 </head>
-<body class="bg-gray-100 font-sans antialiased flex flex-col min-h-screen">
-    {# Header Section #}
-    <header class="bg-blue-800 text-white p-4 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            {# Company Logo and Name #}
-            <a href="{% url 'homepage' %}" class="flex items-center space-x-2 rounded-md pl-1 py-1 hover:bg-blue-700 transition duration-300"> {# MODIFICATION: Changed px-3 to pl-1 for slight left shift #}
-                <img src="{% static 'images/company_logo.png' %}" alt="MetaStack Web Technologies Logo" class="h-8"> {# Adjust height as needed #}
-                <span class="text-2xl font-bold">{{ company_name }}</span>
-            </a>
-            <nav class="hidden md:block">
-                <ul class="flex space-x-6">
-                    <li><a href="{% url 'homepage' %}" class="hover:text-blue-200 transition duration-300">Home</a></li>
-                    <li><a href="{% url 'about' %}" class="hover:text-blue-200 transition duration-300">About Us</a></li>
-                    <li><a href="{% url 'our_team' %}" class="hover:text-blue-200 transition duration-300">Our Team</a></li>
-                    <li><a href="{% url 'homepage' %}#services" class="hover:text-blue-200 transition duration-300">Services</a></li>
-                    <li><a href="{% url 'homepage' %}#portfolio" class="hover:text-blue-200 transition duration-300">Portfolio</a></li>
-                    <li><a href="{% url 'blog_list' %}" class="hover:text-blue-200 transition duration-300">Blog</a></li>
-                    <li><a href="{% url 'contact' %}" class="hover:text-blue-200 transition duration-300">Contact</a></li>
-                </ul>
+<body class="bg-gray-100 text-gray-800 font-sans flex flex-col min-h-screen">
+
+    <!-- Header Section -->
+    <header id="main-header" class="text-white shadow-lg sticky top-0 z-50 animate-slide-in-down" style="background-image: linear-gradient(to right, var(--color-primary-dark), var(--color-primary-light));">
+        <div class="container mx-auto px-6 py-2">
+            <nav class="flex items-center justify-between">
+                <!-- Logo and Company Name -->
+                <div class="flex items-center">
+                    <a href="{% url 'homepage' %}" class="flex items-center transform transition duration-300 hover:scale-105">
+                        <img src="{% static 'images/company_logo.png' %}" alt="MetaStack Company Logo" class="logo-img" style="height: 64px; width: auto; margin-right: 1rem;" onerror="this.onerror=null;this.src='https://placehold.co/64x64/FF0000/FFFFFF?text=ERROR';">
+                        <span class="text-3xl font-bold text-shadow-sm company-name-text">{{ company_name }}</span>
+                    </a>
+                </div>
+
+                <!-- MODIFICATION: Replaced custom tag with standard Django template logic -->
+                <div class="hidden md:flex items-center space-x-2">
+                    <a href="{% url 'homepage' %}" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% if request.resolver_match.url_name == 'homepage' %}nav-link-active{% endif %}">Home</a>
+                    
+                    <div class="relative" x-data="{ open: false }">
+                        <button @mouseover="open = true" @mouseleave="open = false" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% if request.resolver_match.url_name == 'about' %}nav-link-active{% endif %} flex items-center">
+                            About Us <i class="fas fa-angle-down ml-1 text-xs"></i>
+                        </button>
+                        <div x-show="open" @mouseover="open = true" @mouseleave="open = false" x-transition class="absolute mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                            <a href="{% url 'about' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Our Company</a>
+                            <a href="{% url 'team' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Our Team</a>
+                        </div>
+                    </div>
+
+                    <div class="relative" x-data="{ open: false }">
+                        <button @mouseover="open = true" @mouseleave="open = false" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% if request.resolver_match.url_name == 'services' or request.resolver_match.url_name == 'service_detail' %}nav-link-active{% endif %} flex items-center">
+                            Services <i class="fas fa-angle-down ml-1 text-xs"></i>
+                        </button>
+                        <div x-show="open" @mouseover="open = true" @mouseleave="open = false" x-transition class="absolute mt-2 w-60 bg-white rounded-md shadow-lg py-1 z-20">
+                            {% get_all_services as all_services %}
+                            {% for service in all_services %}
+                                <a href="{% url 'service_detail' service.slug %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ service.title }}</a>
+                            {% endfor %}
+                             <a href="{% url 'services' %}" class="block px-4 py-2 text-sm font-bold text-blue-600 hover:bg-gray-100 border-t mt-1 pt-1">View All Services</a>
+                        </div>
+                    </div>
+
+                    <div class="relative" x-data="{ open: false }">
+                        <button @mouseover="open = true" @mouseleave="open = false" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% if request.resolver_match.url_name == 'portfolio' %}nav-link-active{% endif %} flex items-center">
+                            Portfolio <i class="fas fa-angle-down ml-1 text-xs"></i>
+                        </button>
+                        <div x-show="open" @mouseover="open = true" @mouseleave="open = false" x-transition class="absolute mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                            <a href="{% url 'portfolio' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Projects</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Case Studies</a>
+                        </div>
+                    </div>
+
+                    <div class="relative" x-data="{ open: false }">
+                        <button @mouseover="open = true" @mouseleave="open = false" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% if request.resolver_match.url_name == 'blog_list' %}nav-link-active{% endif %} flex items-center">
+                            Blog <i class="fas fa-angle-down ml-1 text-xs"></i>
+                        </button>
+                        <div x-show="open" @mouseover="open = true" @mouseleave="open = false" x-transition class="absolute mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+                            <a href="{% url 'blog_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">All Posts</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">By Category</a>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'contact' %}" class="py-2 px-4 rounded-full transition-all duration-300 hover:bg-white/20 {% if request.resolver_match.url_name == 'contact' %}nav-link-active{% endif %}">Contact</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden" x-data="{ open: false }">
+                    <button @click="open = !open" class="text-white focus:outline-none transition-transform duration-300" :class="{'rotate-90': open}">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                    <div x-show="open" @click.away="open = false" class="absolute top-full left-0 w-full shadow-lg py-2" style="background-color: var(--color-primary-dark);">
+                        <a href="{% url 'homepage' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">Home</a>
+                        <a href="{% url 'about' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">About</a>
+                        <a href="{% url 'services' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">Services</a>
+                        <a href="{% url 'portfolio' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">Portfolio</a>
+                        <a href="{% url 'blog_list' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">Blog</a>
+                        <a href="{% url 'contact' %}" class="block text-center px-4 py-2 hover:bg-blue-400 hover:text-white">Contact</a>
+                    </div>
+                </div>
             </nav>
-            {# Mobile Menu Button (Hamburger) #}
-            <button class="md:hidden text-white text-2xl focus:outline-none" onclick="toggleMobileMenu()">
-                <i class="fas fa-bars"></i>
-            </button>
         </div>
-        {# Mobile Menu (Hidden by default) #}
-        <nav id="mobile-menu" class="md:hidden bg-blue-700 py-4 hidden">
-            <ul class="flex flex-col items-center space-y-3">
-                <li><a href="{% url 'homepage' %}" class="block py-2 hover:bg-blue-600 w-full text-center">Home</a></li>
-                <li><a href="{% url 'about' %}" class="block py-2 hover:bg-blue-600 w-full text-center">About Us</a></li>
-                <li><a href="{% url 'our_team' %}" class="block py-2 hover:bg-blue-600 w-full text-center">Our Team</a></li>
-                <li><a href="{% url 'homepage' %}#services" class="block py-2 hover:bg-blue-600 w-full text-center">Services</a></li>
-                <li><a href="{% url 'homepage' %}#portfolio" class="block py-2 hover:bg-blue-600 w-full text-center">Portfolio</a></li>
-                <li><a href="{% url 'blog_list' %}" class="block py-2 hover:bg-blue-600 w-full text-center">Blog</a></li>
-                <li><a href="{% url 'contact' %}" class="block py-2 hover:bg-blue-600 w-full text-center">Contact</a></li>
-            </ul>
-        </nav>
     </header>
 
-    {# Django Messages Section #}
-    {% if messages %}
-        <div class="container mx-auto mt-4 px-4">
-            {% for message in messages %}
-                <div class="p-3 mb-2 rounded-md text-center
-                    {% if message.tags == 'success' %}bg-green-100 text-green-800 border border-green-200{% endif %}
-                    {% if message.tags == 'error' %}bg-red-100 text-red-800 border border-red-200{% endif %}
-                    {% if message.tags == 'info' %}bg-blue-100 text-blue-800 border border-blue-200{% endif %}
-                    {% if message.tags == 'warning' %}bg-yellow-100 text-yellow-800 border border-yellow-200{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    {# Main Content Block #}
     <main class="flex-grow">
-        {% block content %}
-            {# Content from other templates will be inserted here #}
-        {% endblock %}
+        {% block content %}{% endblock %}
     </main>
 
-    {# Footer Section #}
-    <footer class="bg-gray-900 text-white py-8 mt-auto">
-        <div class="container mx-auto px-4 text-center">
-            <p>&copy; {% now "Y" %} {{ company_name }}. All rights reserved.</p>
-            <div class="flex justify-center space-x-6 mt-4">
-                <a href="#" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white transition duration-300"><i class="fab fa-instagram"></i></a>
+    <footer class="bg-gray-800 text-white mt-auto">
+        <div class="container mx-auto px-6 py-10">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">MetaStack</h3>
+                    <p class="text-gray-400">
+                        Crafting innovative web solutions to elevate your business. From elegant designs to powerful backends, we build for the future.
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'about' %}" class="hover:text-gray-300">About Us</a></li>
+                        <li><a href="{% url 'services' %}" class="hover:text-gray-300">Services</a></li>
+                        <li><a href="{% url 'contact' %}" class="hover:text-gray-300">Contact</a></li>
+                        <li><a href="#" class="hover:text-gray-300">Privacy Policy</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in fa-lg"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Stay Updated</h3>
+                    <p class="text-gray-400 mb-4">Subscribe to our newsletter for the latest news and updates.</p>
+                    <form action="{% url 'subscribe_newsletter' %}" method="post">
+                        {% csrf_token %}
+                        <div class="flex">
+                            <input type="email" name="email" class="w-full rounded-l-md px-4 py-2 text-gray-800" placeholder="Enter your email" required>
+                            <button type="submit" class="text-white rounded-r-md px-4 py-2 font-semibold" style="background-color: var(--color-primary-dark); transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#00FFDD'" onmouseout="this.style.backgroundColor='var(--color-primary-dark)'">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <p class="text-sm text-gray-500 mt-4">Designed with <i class="fas fa-heart text-red-500"></i> by MetaStack Team</p>
+
+            <div class="mt-10 border-t border-gray-700 pt-6 text-center text-gray-400">
+                <p>&copy; {% current_year %} {{ company_name }}. All Rights Reserved.</p>
+            </div>
         </div>
     </footer>
 
-    {# JavaScript for Mobile Menu Toggle #}
+    <button id="to-top-button" class="hidden fixed bottom-8 right-8 text-white p-3 rounded-full shadow-lg z-50" style="background-color: var(--color-primary-dark); transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#00FFDD'" onmouseout="this.style.backgroundColor='var(--color-primary-dark)'">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <div id="copilot-container" class="fixed bottom-5 right-5 z-[9999]" x-data="{ open: false, showBanner: true }">
+        <div x-show="showBanner && !open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="speech-bubble absolute bottom-[75px] right-0 mb-2 w-max max-w-xs p-3 rounded-lg text-white shadow-lg flex items-center" style="background-color: var(--color-primary-dark);">
+            <i class="fas fa-handshake text-xl animate-wave mr-3" style="color: var(--color-primary-light);"></i>
+            <span class="text-sm font-semibold">We are here to help!</span>
+            <button @click="showBanner = false" class="ml-4 text-white hover:text-gray-200">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <div x-show="open" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95" id="copilot-chat-window" class="absolute bottom-[80px] right-0 w-80 bg-white rounded-lg shadow-2xl border border-gray-200 transform origin-bottom-right">
+            <div class="flex justify-between items-center p-3 text-white rounded-t-lg" style="background-color: var(--color-primary-dark);">
+                <h3 class="font-bold text-sm">MetaStack Assistant</h3>
+                <button @click="open = false" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="copilot-messages" class="p-4 h-80 overflow-y-auto">
+                <div class="mb-3">
+                    <div class="bg-gray-200 text-gray-800 text-sm p-2 rounded-lg inline-block max-w-[85%]">
+                        Hello! How can I help you with our services today?
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-200 flex">
+                <input type="text" id="copilot-input" placeholder="Ask about our services..." class="flex-grow w-full px-3 py-2 text-sm border border-gray-300 rounded-l-md focus:outline-none focus:ring-2" style="--tw-ring-color: var(--color-primary-dark);">
+                <button id="send-copilot-message" class="text-white px-4 rounded-r-md" style="background-color: var(--color-primary-dark);">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+        <button @click="open = !open; showBanner = false" id="open-copilot" class="text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform" style="background-color: var(--color-primary-dark);">
+            <i class="fas fa-robot text-2xl"></i>
+        </button>
+    </div>
+
     <script>
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
+        // Back to top button script
+        const toTopButton = document.getElementById('to-top-button');
+        if (toTopButton) {
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    toTopButton.classList.remove('hidden');
+                } else {
+                    toTopButton.classList.add('hidden');
+                }
+            });
+            toTopButton.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
         }
     </script>
+    
+    {% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const sendButton = document.getElementById('send-copilot-message');
+            const messageInput = document.getElementById('copilot-input');
+            const messagesContainer = document.getElementById('copilot-messages');
+            
+            const mainHeader = document.getElementById('main-header');
+            let lastScrollTop = 0;
+            if (mainHeader) {
+                window.addEventListener('scroll', function() {
+                    let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    if (scrollTop > 50) { 
+                        if (scrollTop > lastScrollTop) {
+                            // Scrolling Down
+                            mainHeader.classList.add('header-compressed');
+                            mainHeader.classList.remove('header-shrunk');
+                        } else {
+                            // Scrolling Up
+                            mainHeader.classList.add('header-shrunk');
+                            mainHeader.classList.remove('header-compressed');
+                        }
+                    } else {
+                        // At the top of the page
+                        mainHeader.classList.remove('header-shrunk', 'header-compressed');
+                    }
+                    lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+                }, false);
+            }
+
+            function sendMessage() {
+                const userMessage = messageInput.value.trim();
+                if (userMessage === '') return;
+
+                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'mb-3 flex justify-end';
+                userMessageDiv.innerHTML = `<div class="text-white text-sm p-2 rounded-lg inline-block max-w-[85%]" style="background-color: var(--color-primary-dark);">${userMessage}</div>`;
+                messagesContainer.appendChild(userMessageDiv);
+                
+                messageInput.value = '';
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                setTimeout(() => {
+                    getBotResponse(userMessage);
+                }, 1000);
+            }
+
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            function getBotResponse(userInput) {
+                const lowerInput = userInput.toLowerCase();
+                const linkColor = 'var(--color-primary-dark)';
+                let botReply = "I'm not sure how to answer that. You can ask me about our services, pricing, or how to contact us.";
+
+                if (lowerInput.includes('hello') || lowerInput.includes('hi')) {
+                    botReply = "Hello there! How can I assist you today?";
+                } else if (lowerInput.includes('service')) {
+                    botReply = `We offer a wide range of services including Web Development, Mobile App Development, and Cloud & DevOps. You can see all of them on our <a href="{% url 'services' %}" style="color: ${linkColor};" class="underline">services page</a>.`;
+                } else if (lowerInput.includes('web')) {
+                    botReply = `Our Web Development service focuses on creating high-performance, responsive websites. Check out the <a href="/services/web-development/" style="color: ${linkColor};" class="underline">details here</a>.`;
+                } else if (lowerInput.includes('mobile') || lowerInput.includes('app')) {
+                    botReply = `We build intuitive native and cross-platform mobile applications. Learn more on the <a href="/services/mobile-app-development/" style="color: ${linkColor};" class="underline">mobile app development page</a>.`;
+                } else if (lowerInput.includes('contact') || lowerInput.includes('email')) {
+                    botReply = `You can get in touch with us through our <a href="{% url 'contact' %}" style="color: ${linkColor};" class="underline">Contact Page</a>.`;
+                } else if (lowerInput.includes('price') || lowerInput.includes('cost')) {
+                    botReply = "For pricing details, it's best to discuss your project with us directly. Please reach out via our contact page for a custom quote.";
+                } else if (lowerInput.includes('bye') || lowerInput.includes('thanks')) {
+                    botReply = "You're welcome! Have a great day.";
+                }
+
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.className = 'mb-3';
+                botMessageDiv.innerHTML = `<div class="bg-gray-200 text-gray-800 text-sm p-2 rounded-lg inline-block max-w-[85%]">${botReply}</div>`;
+                messagesContainer.appendChild(botMessageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        });
+    </script>
+    {% endblock %}
 </body>
 </html>

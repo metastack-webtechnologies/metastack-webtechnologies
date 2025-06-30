@@ -1,0 +1,51 @@
+{% extends 'website/base.html' %}
+{% load static %}
+
+{% block title %}Our Services - {{ company_name }}{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-6">
+
+        <!-- Section Header -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800">Our Services</h1>
+            <!-- Decorative underline using brand colors -->
+            <div class="mt-4 h-1.5 w-24 mx-auto rounded-full" style="background-image: linear-gradient(to right, var(--color-primary-dark), var(--color-primary-light));"></div>
+            <p class="text-lg text-gray-600 mt-6 max-w-3xl mx-auto">
+                We offer a comprehensive suite of services to bring your digital vision to life. Explore our core offerings below to see how we can help your business grow.
+            </p>
+        </div>
+
+        <!-- Grid of Service Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for service in services %}
+            <div class="bg-white rounded-xl shadow-lg p-8 transform hover:scale-105 hover:shadow-xl transition-all duration-300 ease-in-out border border-gray-100 h-full flex flex-col text-center">
+                <div class="flex-grow">
+                    <div class="text-5xl mb-5" style="color: var(--color-primary-dark);">
+                        <!-- Service Icon -->
+                        <i class="{{ service.icon_class|default:'fas fa-cogs' }}"></i>
+                    </div>
+                    <!-- Service Title -->
+                    <h3 class="text-2xl font-bold mb-3 text-gray-900">{{ service.title }}</h3>
+                    <!-- Service Description -->
+                    <p class="text-gray-600">{{ service.short_description }}</p>
+                </div>
+                <!-- Learn More Link -->
+                <div class="mt-6">
+                    <a href="{% url 'service_detail' service.slug %}" class="font-semibold transition-colors duration-300" style="color: var(--color-primary-dark);">
+                        Learn More <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Message if no services are found -->
+            <div class="col-span-full text-center py-12">
+                <p class="text-xl text-gray-600">No services are available at the moment. Please check back later.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</section>
+{% endblock %}

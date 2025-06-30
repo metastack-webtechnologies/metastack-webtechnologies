@@ -1,13 +1,31 @@
+# C:\Metastack-website\metaproducts-website\website\templatetags\website_tags.py
+
 from django import template
-from django.utils.safestring import mark_safe
+from ..models import Service
+import datetime
 
 register = template.Library()
+
+@register.simple_tag
+def get_all_services():
+    """
+    A simple template tag to fetch all service objects.
+    This is used to populate the services dropdown in the header on every page.
+    """
+    return Service.objects.all()
+
+@register.simple_tag
+def current_year():
+    """
+    Returns the current year.
+    Used for the copyright notice in the footer.
+    """
+    return datetime.date.today().year
 
 @register.filter(name='splitlines')
 def splitlines(value):
     """
     Splits a string by newlines and returns a list of stripped lines.
-    Useful for displaying features entered one per line in a TextField.
     """
     if not isinstance(value, str):
         return value
@@ -17,7 +35,6 @@ def splitlines(value):
 def strip_filter(value):
     """
     Strips leading/trailing whitespace from a string.
-    Ensures no extra spaces affect display, especially after splitting lines.
     """
     if not isinstance(value, str):
         return value

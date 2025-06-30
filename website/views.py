@@ -1,86 +1,91 @@
+# website/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-# Import all necessary models, including Comment
+# Import all necessary models
 from .models import Service, Project, ContactMessage, BlogPost, Category, Testimonial, TeamMember, Technology, Tag, Comment, NewsletterSubscriber
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
-from django.views.decorators.http import require_POST # Import require_POST decorator
+from django.db.models import Q, Count # Import Count for related_name aggregation
+import json # Import json module - needed for manual serialization if not using json_script directly on values()
+from django.views.decorators.http import require_POST # MODIFICATION: Added import for require_POST
+
+# --- Main Page Views ---
 
 def homepage(request):
     """
-    Renders the homepage of the website, fetching data from models,
-    with added filtering for projects based on technology or industry.
+    Renders the homepage, fetching featured content and handling filtering for projects.
+    Includes serialization of services for JavaScript usage.
     """
-    services = Service.objects.all()
+    # Retrieve all services, ordered by pk to ensure consistent order for JS navigation
+    # MODIFICATION: Manually serialize the queryset to a list of dictionaries for JSON serialization
+    services_queryset = Service.objects.all().order_by('pk') 
+    
+    services_data = []
+    for service in services_queryset:
+        services_data.append({
+            'pk': service.pk,
+            'fields': { # Mimic Django's default serializer structure
+                'title': service.title,
+                'slug': service.slug,
+                'short_description': service.short_description,
+                'icon_class': service.icon_class,
+                # Add any other service fields needed by your JavaScript here
+            }
+        })
 
-    projects = Project.objects.all()
+    # Retrieve projects, optionally filtered by technology or industry
+    current_technology_slug = request.GET.get('technology')
+    current_industry = request.GET.get('industry')
 
-    filter_technology_slug = request.GET.get('technology')
-    filter_industry = request.GET.get('industry')
+    projects_queryset = Project.objects.all()
 
-    if filter_technology_slug:
-        projects = projects.filter(technologies__slug=filter_technology_slug).distinct()
-    if filter_industry:
-        projects = projects.filter(industry__iexact=filter_industry).distinct()
+    if current_technology_slug:
+        projects_queryset = projects_queryset.filter(technologies__slug=current_technology_slug)
+    
+    if current_industry:
+        # Ensure 'industry' field exists and is not null/empty before filtering
+        projects_queryset = projects_queryset.filter(industry=current_industry)
 
-    all_technologies = Technology.objects.all()
+    # Order projects to ensure consistent display - MODIFICATION: Changed 'date_added' to 'date_completed'
+    projects_queryset = projects_queryset.order_by('-date_completed') # Or '-id' if no date_completed exists/desired
 
+    # Get all unique technologies and industries for filters
+    # Filter technologies to only show those associated with at least one project
+    # MODIFICATION: Changed Count('project') to Count('projects') as per error message
+    all_technologies = Technology.objects.annotate(num_projects=Count('projects')).filter(num_projects__gt=0).order_by('name')
+    # Exclude null or empty industries
     all_industries = Project.objects.exclude(industry__isnull=True).exclude(industry__exact='').values_list('industry', flat=True).distinct().order_by('industry')
-
-    testimonials = Testimonial.objects.filter(is_approved=True)
+    
+    # Retrieve testimonials - MODIFICATION: Changed 'created_at' to 'date_created'
+    testimonials = Testimonial.objects.filter(is_approved=True).order_by('-date_created')[:3] # Get latest 3 approved testimonials
 
     context = {
-        'company_name': 'MetaStack Web Technologies',
-        'services': services,
-        'projects': projects,
+        'company_name': 'MetaStack Web Technologies', # Ensure company_name is always in context
+        'services': services_data, # MODIFICATION: Pass the serialized list of dictionaries
+        'projects': projects_queryset,
         'testimonials': testimonials,
         'all_technologies': all_technologies,
         'all_industries': all_industries,
-        'current_technology': filter_technology_slug,
-        'current_industry': filter_industry,
+        'current_technology': current_technology_slug, # Pass current filter values
+        'current_industry': current_industry,           # Pass current filter values
     }
     return render(request, 'website/homepage.html', context)
 
-def service_detail(request, slug):
-    """
-    Renders the detail page for a specific service.
-    Fetches the service object based on its slug.
-    Processes key features for display.
-    """
-    service = get_object_or_404(Service, slug=slug)
-
-    # Process key features from the TextField (one per line)
-    processed_key_features = []
-    if service.key_features:
-        for line in service.key_features.splitlines():
-            stripped_line = line.strip()
-            if stripped_line: # Only add non-empty lines
-                processed_key_features.append(stripped_line)
-
-    context = {
-        'company_name': 'MetaStack Web Technologies',
-        'service': service,
-        'processed_key_features': processed_key_features,
-    }
-    return render(request, 'website/service_detail.html', context)
-
-def about_us(request):
+def about(request):
     """
     Renders the About Us page.
     """
+    team_members = TeamMember.objects.all()
     context = {
         'company_name': 'MetaStack Web Technologies',
+        'team_members': team_members,
     }
     return render(request, 'website/about.html', context)
 
-def contact_page(request):
+def contact(request):
     """
     Handles displaying and submitting the contact form.
     """
-    context = {
-        'company_name': 'MetaStack Web Technologies',
-    }
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
@@ -89,39 +94,70 @@ def contact_page(request):
 
         if not name or not email or not message_content:
             messages.error(request, 'Please fill in all required fields (Name, Email, Message).')
-            return render(request, 'website/contact.html', context)
-
-        try:
-            ContactMessage.objects.create(
-                name=name,
-                email=email,
-                subject=subject,
-                message=message_content
-            )
-            messages.success(request, 'Your message has been sent successfully!')
-            return redirect(reverse('contact'))
-        except Exception as e:
-            messages.error(request, f'An error occurred while sending your message: {e}')
-            return render(request, 'website/contact.html', context)
-
+        else:
+            try:
+                ContactMessage.objects.create(
+                    name=name,
+                    email=email,
+                    subject=subject,
+                    message=message_content
+                )
+                messages.success(request, 'Your message has been sent successfully!')
+                return redirect('contact')
+            except Exception as e:
+                messages.error(request, f'An error occurred while sending your message: {e}')
+    
+    context = {
+        'company_name': 'MetaStack Web Technologies',
+    }
     return render(request, 'website/contact.html', context)
+
+# --- Services Views ---
+
+def services(request):
+    """
+    Displays a list of all available services.
+    """
+    all_services = Service.objects.all()
+    context = {
+        'services': all_services,
+        'company_name': "MetaStack Web Technologies",
+    }
+    # FIX: Changed 'services.html' to 'services_list.html'
+    return render(request, 'website/services_list.html', context)
+
+def service_detail(request, slug):
+    """
+    Renders the detail page for a specific service.
+    """
+    service = get_object_or_404(Service, slug=slug)
+    processed_key_features = [line.strip() for line in service.key_features.splitlines() if line.strip()]
+    context = {
+        'company_name': 'MetaStack Web Technologies',
+        'service': service,
+        'processed_key_features': processed_key_features,
+    }
+    return render(request, 'website/service_detail.html', context)
+
+# --- Portfolio Views ---
+
+def portfolio(request):
+    """
+    Displays the portfolio grid page.
+    """
+    projects = Project.objects.all()
+    context = {
+        'company_name': 'MetaStack Web Technologies',
+        'projects': projects,
+    }
+    return render(request, 'website/portfolio.html', context)
 
 def portfolio_detail(request, pk):
     """
     Renders the portfolio detail page for a specific project.
-    Args:
-        request: HttpRequest object.
-        pk (int): Primary key of the Project to display.
     """
     project = get_object_or_404(Project, pk=pk)
-
-    processed_key_features = []
-    if project.key_features:
-        for line in project.key_features.splitlines():
-            stripped_line = line.strip()
-            if stripped_line:
-                processed_key_features.append(stripped_line)
-
+    processed_key_features = [line.strip() for line in project.key_features.splitlines() if line.strip()]
     context = {
         'company_name': 'MetaStack Web Technologies',
         'project': project,
@@ -129,114 +165,67 @@ def portfolio_detail(request, pk):
     }
     return render(request, 'website/portfolio_detail.html', context)
 
+# --- Blog Views ---
+
 def blog_list(request):
     """
-    Displays a list of all published blog posts, with pagination, search, category, and tag filtering.
+    Displays a list of all published blog posts with pagination and filtering.
     """
-    all_posts = BlogPost.objects.filter(is_published=True)
-    categories = Category.objects.all()
-    all_tags = Tag.objects.all()
+    all_posts = BlogPost.objects.filter(is_published=True).order_by('-pub_date')
     query = request.GET.get('q')
-    category_slug = request.GET.get('category')
-    tag_slug = request.GET.get('tag')
 
     if query:
         all_posts = all_posts.filter(
-            Q(title__icontains=query) |
-            Q(summary__icontains=query) |
-            Q(content__icontains=query)
+            Q(title__icontains=query) | Q(summary__icontains=query)
         ).distinct()
-
-    if category_slug:
-        all_posts = all_posts.filter(category__slug=category_slug)
-        selected_category = get_object_or_404(Category, slug=category_slug)
-    else:
-        selected_category = None
-
-    if tag_slug:
-        all_posts = all_posts.filter(tags__slug=tag_slug).distinct()
-        selected_tag = get_object_or_404(Tag, slug=tag_slug)
-    else:
-        selected_tag = None
-
-    all_posts = all_posts.order_by('-pub_date')
-
 
     paginator = Paginator(all_posts, 6)
     page_number = request.GET.get('page')
-    try:
-        blog_posts = paginator.page(page_number)
-    except PageNotAnInteger:
-        blog_posts = paginator.page(1)
-    except EmptyPage:
-        blog_posts = paginator.page(paginator.num_pages)
+    blog_posts = paginator.get_page(page_number)
 
     context = {
         'company_name': 'MetaStack Web Technologies',
         'blog_posts': blog_posts,
-        'categories': categories,
-        'all_tags': all_tags,
-        'query': query,
-        'selected_category': selected_category,
-        'selected_tag': selected_tag,
+        'categories': Category.objects.all(),
+        'all_tags': Tag.objects.all(),
     }
     return render(request, 'website/blog_list.html', context)
 
 def blog_detail(request, slug):
     """
-    Displays the full content of a single blog post.
-    Handles comment submission and fetches approved comments.
-    Fetches recent posts and next/previous posts.
+    Displays a single blog post and handles comments.
     """
     blog_post = get_object_or_404(BlogPost, slug=slug, is_published=True)
-    recent_posts = BlogPost.objects.filter(is_published=True).exclude(pk=blog_post.pk).order_by('-pub_date')[:5]
-    categories = Category.objects.all()
-    all_tags = Tag.objects.all()
-
-    # Handle comment submission (POST request)
+    
     if request.method == 'POST':
         author_name = request.POST.get('author_name')
-        author_email = request.POST.get('author_email')
         comment_text = request.POST.get('comment_text')
-
-        if not author_name or not comment_text:
-            messages.error(request, "Name and comment cannot be empty.")
+        if author_name and comment_text:
+            Comment.objects.create(
+                blog_post=blog_post,
+                author_name=author_name,
+                comment_text=comment_text,
+            )
+            messages.success(request, "Your comment has been submitted for moderation.")
+            return redirect('blog_detail', slug=slug)
         else:
-            try:
-                Comment.objects.create(
-                    blog_post=blog_post,
-                    author_name=author_name,
-                    author_email=author_email,
-                    comment_text=comment_text,
-                    is_approved=False # Comments need to be approved by default
-                )
-                messages.success(request, "Your comment has been submitted for moderation. Thank you!")
-                # Redirect to the same blog post to prevent re-submission on refresh
-                return redirect('blog_detail', slug=slug)
-            except Exception as e:
-                messages.error(request, f"An error occurred while submitting your comment: {e}")
-
-    # Fetch approved comments for this blog post
-    approved_comments = blog_post.comments.filter(is_approved=True).order_by('pub_date')
-
-    next_post = BlogPost.objects.filter(is_published=True, pub_date__gt=blog_post.pub_date).order_by('pub_date').first()
-    previous_post = BlogPost.objects.filter(is_published=True, pub_date__lt=blog_post.pub_date).order_by('-pub_date').first()
+            messages.error(request, "Name and comment cannot be empty.")
 
     context = {
         'company_name': 'MetaStack Web Technologies',
         'blog_post': blog_post,
-        'recent_posts': recent_posts,
-        'categories': categories,
-        'all_tags': all_tags,
-        'next_post': next_post,
-        'previous_post': previous_post,
-        'approved_comments': approved_comments, # Pass approved comments to the template
+        'approved_comments': blog_post.comments.filter(is_approved=True).order_by('pub_date'),
+        'recent_posts': BlogPost.objects.filter(is_published=True).exclude(pk=blog_post.pk).order_by('-pub_date')[:5],
+        'categories': Category.objects.all(),
+        'all_tags': Tag.objects.all(),
     }
     return render(request, 'website/blog_detail.html', context)
 
-def our_team(request):
+# --- Other Views ---
+
+def team(request):
     """
-    Renders the 'Our Team' page, fetching all team members.
+    Renders the 'Our Team' page.
     """
     team_members = TeamMember.objects.all()
     context = {
@@ -246,23 +235,17 @@ def our_team(request):
     return render(request, 'website/team.html', context)
 
 @require_POST
-def newsletter_subscribe(request):
+def subscribe_newsletter(request):
     """
     Handles newsletter subscription form submission.
     """
     email = request.POST.get('email')
-
-    if not email:
-        messages.error(request, "Please provide an email address to subscribe.")
+    if email:
+        if not NewsletterSubscriber.objects.filter(email=email).exists():
+            NewsletterSubscriber.objects.create(email=email)
+        else:
+            messages.info(request, "This email is already subscribed.")
     else:
-        try:
-            if NewsletterSubscriber.objects.filter(email=email).exists():
-                messages.info(request, "This email is already subscribed to our newsletter.")
-            else:
-                NewsletterSubscriber.objects.create(email=email)
-                messages.success(request, "Successfully subscribed to our newsletter! Thank you.")
-        except Exception as e:
-            messages.error(request, f"An error occurred: {e}")
-
-    # Redirect back to the page where the form was submitted, or homepage as a fallback
-    return redirect(request.META.get('HTTP_REFERER', reverse('homepage'))) # Use HTTP_REFERER to redirect back to originating page
+        messages.error(request, "Please provide an email address.")
+    
+    return redirect(request.META.get('HTTP_REFERER', 'homepage'))
