@@ -39,3 +39,10 @@ def strip_filter(value):
     if not isinstance(value, str):
         return value
     return value.strip()
+
+@register.simple_tag(takes_context=True)
+def is_active(context, view_name):
+    request = context['request']
+    if request.resolver_match and request.resolver_match.url_name == view_name:
+        return 'nav-link-active'  # This is the CSS class for the active link
+    return ''
