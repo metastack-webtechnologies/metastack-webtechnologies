@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clinic Invoice Generator - MetaStack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      body {
+        font-family: "Lato", sans-serif;
+        background-color: #f0f7ff;
+      }
+      .title-font {
+        font-family: "Playfair Display", serif;
+      }
+      .print-area {
+        display: none;
+      }
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        .print-area,
+        .print-area * {
+          visibility: visible;
+        }
+        .print-area {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+        }
+        .no-print {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect } = React;
+
+      const initialServices = [
+        { id: 1, name: "General Consultation", category: "Doctor", price: 800 },
+        { id: 2, name: "Follow-up Visit", category: "Doctor", price: 400 },
+        {
+          id: 3,
+          name: "Dental Cleaning & Polishing",
+          category: "Dentist",
+          price: 1500,
+        },
+        { id: 4, name: "Tooth Extraction", category: "Dentist", price: 2000 },
+        {
+          id: 5,
+          name: "Root Canal Treatment",
+          category: "Dentist",
+          price: 5000,
+        },
+        {
+          id: 6,
+          name: "Physiotherapy Session",
+          category: "Physio",
+          price: 1000,
+        },
+        { id: 7, name: "Acupuncture", category: "Physio", price: 1200 },
+        {
+          id: 8,
+          name: "Routine Blood Test",
+          category: "Diagnostics",
+          price: 600,
+        },
+        { id: 9, name: "X-Ray", category: "Diagnostics", price: 900 },
+      ];
+
+      function App() {
+        const [services, setServices] = useState(initialServices);
+        const [currentInvoice, setCurrentInvoice] = useState([]);
+        const [patientName, setPatientName] = useState("Jane Doe");
+        const [invoiceId, setInvoiceId] = useState(101);
+        const [showInvoice, setShowInvoice] = useState(false);
+
+        const addToInvoice = (service) => {
+          setCurrentInvoice((prevInvoice) => {
+            const existingItem = prevInvoice.find(
+              (item) => item.id === service.id
+            );
+            if (existingItem) {
+              return prevInvoice.map((item) =>
+                item.id === service.id
+                  ? { ...item, quantity: item.quantity + 1 }
+                  : item
+              );
+            }
+            return [...prevInvoice, { ...service, quantity: 1 }];
+          });
+        };
+
+        const updateQuantity = (itemId, amount) => {
+          setCurrentInvoice((prevInvoice) =>
+            prevInvoice
+              .map((item) =>
+                item.id === itemId
+                  ? { ...item, quantity: Math.max(0, item.quantity + amount) }
+                  : item
+              )
+              .filter((item) => item.quantity > 0)
+          );
+        };
+
+        const clearInvoice = () => {
+          setCurrentInvoice([]);
+          setPatientName("Jane Doe");
+          setShowInvoice(false);
+        };
+
+        const generateAndShowInvoice = () => {
+          if (currentInvoice.length > 0) setShowInvoice(true);
+        };
+
+        const handleGeneratePdf = (elementId, fileName) => {
+          const input = document.getElementById(elementId);
+          html2canvas(input, { scale: 2 }).then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jspdf.jsPDF({
+              orientation: "portrait",
+              unit: "pt",
+              format: [canvas.width, canvas.height],
+            });
+            pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+            pdf.save(`${fileName}.pdf`);
+          });
+        };
+
+        const total = currentInvoice.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        );
+
+        return (
+          <div className="min-h-screen bg-[#f0f7ff]">
+            <header className="bg-white shadow-sm p-4 border-b border-blue-800/20">
+              <h1 className="title-font text-3xl text-center text-[#2D3748]">
+                Clinic Invoice Generator
+              </h1>
+              <p className="text-center text-gray-500">by MetaStack</p>
+            </header>
+            <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8 max-w-7xl mx-auto">
+              <ServiceSelection
+                services={services}
+                onAddToInvoice={addToInvoice}
+              />
+              <CurrentInvoice
+                invoice={currentInvoice}
+                onUpdateQuantity={updateQuantity}
+                patientName={patientName}
+                setPatientName={setPatientName}
+                onGenerateInvoice={generateAndShowInvoice}
+                total={total}
+              />
+            </main>
+
+            {showInvoice && (
+              <InvoiceView
+                invoice={currentInvoice}
+                patientName={patientName}
+                invoiceId={invoiceId}
+                total={total}
+                onNewInvoice={() => {
+                  setInvoiceId((prev) => prev + 1);
+                  clearInvoice();
+                }}
+                onGeneratePdf={() =>
+                  handleGeneratePdf("invoice-content", `Invoice_${invoiceId}`)
+                }
+              />
+            )}
+          </div>
+        );
+      }
+
+      function ServiceSelection({ services, onAddToInvoice }) {
+        const categories = [...new Set(services.map((item) => item.category))];
+        return (
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-blue-800/10">
+            <h2 className="title-font text-2xl mb-4 border-b pb-2 border-blue-800/20">
+              Available Services
+            </h2>
+            {categories.map((category) => (
+              <div key={category} className="mb-6">
+                <h3 className="title-font text-xl text-[#3182ce] mb-3">
+                  {category}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {services
+                    .filter((item) => item.category === category)
+                    .map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => onAddToInvoice(item)}
+                        className="bg-[#f0f7ff] p-3 rounded-lg shadow-sm cursor-pointer hover:shadow-md hover:bg-white transition-all flex justify-between items-center"
+                      >
+                        <span>{item.name}</span>
+                        <span className="font-semibold text-gray-600">
+                          ₹{item.price}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      function CurrentInvoice({
+        invoice,
+        onUpdateQuantity,
+        patientName,
+        setPatientName,
+        onGenerateInvoice,
+        total,
+      }) {
+        return (
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-blue-800/10 h-fit sticky top-8">
+            <h2 className="title-font text-2xl mb-4 border-b pb-2 border-blue-800/20">
+              New Invoice
+            </h2>
+            <div className="mb-4">
+              <label
+                htmlFor="patient-name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Patient Name
+              </label>
+              <input
+                type="text"
+                id="patient-name"
+                value={patientName}
+                onChange={(e) => setPatientName(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3182ce] focus:border-[#3182ce]"
+              />
+            </div>
+            <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+              {invoice.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">
+                  Click a service to add it to the invoice.
+                </p>
+              ) : (
+                invoice.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between bg-[#f0f7ff] p-3 rounded-lg"
+                  >
+                    <div>
+                      <p className="font-semibold">{item.name}</p>
+                      <p className="text-sm text-gray-500">₹{item.price}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => onUpdateQuantity(item.id, -1)}
+                        className="w-7 h-7 rounded-full bg-red-100 text-red-700 font-bold"
+                      >
+                        -
+                      </button>
+                      <span>{item.quantity}</span>
+                      <button
+                        onClick={() => onUpdateQuantity(item.id, 1)}
+                        className="w-7 h-7 rounded-full bg-green-100 text-green-700 font-bold"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            {invoice.length > 0 && (
+              <div className="mt-6 border-t pt-4 border-blue-800/20">
+                <div className="flex justify-between font-bold text-xl title-font text-black">
+                  <span>Total</span>
+                  <span>₹{total.toFixed(2)}</span>
+                </div>
+                <div className="mt-6">
+                  <button
+                    onClick={onGenerateInvoice}
+                    className="w-full bg-[#3182ce] text-white py-3 rounded-lg hover:bg-[#2b6cb0] transition-colors"
+                  >
+                    Generate & View Invoice
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      function InvoiceView({
+        invoice,
+        patientName,
+        invoiceId,
+        total,
+        onNewInvoice,
+        onGeneratePdf,
+      }) {
+        return (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-xl w-full max-w-md relative">
+              <div id="invoice-content" className="p-8">
+                <div className="text-center mb-6 border-b pb-4">
+                  <h2 className="text-2xl font-bold title-font">
+                    MetaStack Wellness Clinic
+                  </h2>
+                  <p className="text-sm">123 Health Ave, Innovation City</p>
+                  <p className="text-sm">Reg. No: CLINIC-MS-2024</p>
+                </div>
+                <div className="flex justify-between mb-4 text-sm">
+                  <div>
+                    <strong>Patient:</strong> {patientName}
+                  </div>
+                  <div>
+                    <strong>Invoice #:</strong> {invoiceId}
+                  </div>
+                </div>
+                <div className="flex justify-between mb-4 text-sm">
+                  <div>
+                    <strong>Date:</strong> {new Date().toLocaleDateString()}
+                  </div>
+                </div>
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b bg-gray-50">
+                      <th className="font-semibold p-2">SERVICE / ITEM</th>
+                      <th className="font-semibold p-2 text-center">QTY</th>
+                      <th className="font-semibold p-2 text-right">
+                        UNIT PRICE
+                      </th>
+                      <th className="font-semibold p-2 text-right">AMOUNT</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoice.map((item) => (
+                      <tr key={item.id} className="border-b">
+                        <td className="p-2 font-semibold">{item.name}</td>
+                        <td className="p-2 text-center">{item.quantity}</td>
+                        <td className="p-2 text-right">
+                          {item.price.toFixed(2)}
+                        </td>
+                        <td className="p-2 text-right">
+                          {(item.price * item.quantity).toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="mt-6 flex justify-end">
+                  <div className="w-full md:w-1/2">
+                    <div className="flex justify-between font-bold text-lg border-t-2 border-black pt-2">
+                      <span>TOTAL</span>
+                      <span>₹{total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-center text-xs mt-8">
+                  Thank you for your visit! Wishing you good health.
+                </p>
+              </div>
+              <div className="p-4 bg-gray-50 rounded-b-lg grid grid-cols-3 gap-2 no-print">
+                <button
+                  onClick={onNewInvoice}
+                  className="bg-gray-300 py-2 rounded"
+                >
+                  New Invoice
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="bg-gray-600 text-white py-2 rounded"
+                >
+                  Print
+                </button>
+                <button
+                  onClick={onGeneratePdf}
+                  className="bg-[#3182ce] text-white py-2 rounded"
+                >
+                  Download PDF
+                </button>
+              </div>
+              <div className="print-area">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      document.getElementById("invoice-content")?.innerHTML ||
+                      "",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>

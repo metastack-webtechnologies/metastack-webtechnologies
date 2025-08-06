@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="The ultimate guide to a modern Restaurant Operating System. Learn how MetaStack Web Technologies solves order management, kitchen chaos, and more with custom food-tech solutions."
+    />
+    <title>Restaurant OS Guide - MetaStack Web Technologies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-color: #fdf8f0; /* Creamy off-white */
+        --text-color: #4a4a4a; /* Dark charcoal */
+        --heading-color: #2d2d2d;
+        --accent-color: #b8860b; /* Dark goldenrod */
+        --accent-hover: #daa520; /* Goldenrod */
+        --border-color: rgba(184, 134, 11, 0.2);
+        --node-bg: rgba(255, 255, 255, 0.7);
+        --detail-bg: rgba(255, 255, 255, 0.9);
+      }
+
+      body {
+        font-family: "Lato", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e6e2d3' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+
+      #background-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+      }
+
+      .main-content,
+      .detail-content {
+        display: none;
+        animation: fadeIn 1s ease-in-out forwards;
+      }
+
+      .visible {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .page-title {
+        font-family: "Playfair Display", serif;
+        color: var(--heading-color);
+      }
+
+      .mindmap-container {
+        position: relative;
+        width: 100%;
+        max-width: 700px;
+        height: 700px;
+        margin: 4rem auto;
+      }
+
+      .central-logo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        height: 300px;
+        z-index: 10;
+        cursor: pointer;
+      }
+
+      .central-logo svg {
+        transition: filter 0.3s ease-in-out;
+      }
+
+      .central-logo a:hover svg {
+        filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.1));
+      }
+
+      .logo-path {
+        stroke-width: 10;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+        stroke-dasharray: 1500;
+        stroke-dashoffset: 1500;
+        animation: draw 2s ease-in-out forwards;
+      }
+      .logo-text {
+        font-family: "Playfair Display", serif;
+        fill: var(--heading-color);
+        opacity: 0;
+        animation: fade-in-logo 1s ease-in forwards;
+      }
+      #logo-part-2 {
+        animation-delay: 1s;
+      }
+      #main-text {
+        animation-delay: 2s;
+      }
+      #sub-text {
+        animation-delay: 2.5s;
+      }
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @keyframes fade-in-logo {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .node {
+        position: absolute;
+        width: 180px;
+        height: 180px;
+        background-color: var(--node-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 5;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        opacity: 0;
+        animation: popIn 0.5s ease-out forwards;
+      }
+
+      .node:hover {
+        transform: scale(1.1);
+        border-color: var(--accent-color);
+        box-shadow: 0 8px 25px rgba(184, 134, 11, 0.2);
+      }
+
+      .node .icon {
+        width: 48px;
+        height: 48px;
+        color: var(--accent-color);
+        transition: transform 0.3s ease;
+      }
+      .node:hover .icon {
+        transform: scale(1.2) rotate(5deg);
+      }
+      .node h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        color: var(--heading-color);
+      }
+      .node p {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        color: var(--text-color);
+      }
+
+      .node-1 {
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation-delay: 0.5s;
+      }
+      .node-2 {
+        top: 25%;
+        left: 95%;
+        transform: translate(-50%, -50%);
+        animation-delay: 0.7s;
+      }
+      .node-3 {
+        top: 75%;
+        left: 95%;
+        transform: translate(-50%, -50%);
+        animation-delay: 0.9s;
+      }
+      .node-4 {
+        top: 100%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation-delay: 1.1s;
+      }
+      .node-5 {
+        top: 75%;
+        left: 5%;
+        transform: translate(-50%, -50%);
+        animation-delay: 1.3s;
+      }
+      .node-6 {
+        top: 25%;
+        left: 5%;
+        transform: translate(-50%, -50%);
+        animation-delay: 1.5s;
+      }
+
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.5);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      .detail-content {
+        background-color: var(--detail-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2.5rem;
+        margin-top: 2rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+      }
+      .pain-point {
+        background-color: #fef2f2;
+        border-left: 4px solid #ef4444;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin: 1.5rem 0;
+        color: #991b1b;
+      }
+      .pain-point strong {
+        color: #b91c1c;
+      }
+      .back-button,
+      .cta-button {
+        background-color: var(--accent-color);
+        border: 1px solid var(--accent-color);
+        color: white;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+      }
+      .back-button:hover,
+      .cta-button:hover {
+        background-color: var(--accent-hover);
+        border-color: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .cta-section {
+        background-color: transparent;
+        border: none;
+        padding: 2.5rem;
+        margin-top: 8rem;
+      }
+      .footer {
+        border-top: 1px solid var(--border-color);
+        padding: 2rem 1rem;
+        margin-top: 4rem;
+        color: #7a7a7a;
+      }
+      .footer a {
+        color: var(--accent-color);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .footer a:hover {
+        color: var(--accent-hover);
+      }
+
+      .image-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+      }
+      .image-grid img,
+      .image-grid div {
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+      }
+      .mockup-container {
+        background-color: #fff;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .mockup-container p {
+        font-style: italic;
+        color: #9ca3af;
+        margin-top: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+        .mindmap-container {
+          height: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2rem;
+          margin: 2rem auto;
+        }
+        .node {
+          position: static;
+          transform: none !important;
+          animation: fadeIn 1s ease-out forwards;
+          width: 80%;
+          max-width: 300px;
+          height: auto;
+        }
+        .central-logo {
+          position: static;
+          transform: none;
+          margin-bottom: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <canvas id="background-canvas"></canvas>
+
+    <!-- Main Infographic Page -->
+    <div
+      id="mainPage"
+      class="main-content visible container mx-auto px-4 py-12 relative"
+    >
+      <header class="text-center mb-16">
+        <h1 class="page-title text-4xl md:text-6xl font-bold">
+          The Modern Restaurant Operating System
+        </h1>
+        <p
+          class="text-lg text-gray-500 mt-4 max-w-3xl mx-auto animate-fadeIn"
+          style="animation-delay: 0.5s"
+        >
+          A restaurateur's guide to streamlining operations, delighting
+          customers, and boosting profits with integrated technology.
+        </p>
+      </header>
+
+      <div class="mindmap-container" id="mindmap">
+        <div class="central-logo">
+          <a
+            href="https://www.metastackwebtechnologies.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Metastack Web Technologies Homepage"
+          >
+            <svg
+              viewBox="0 0 600 600"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-label="Metastack Web Technologies Animated Logo"
+            >
+              <g id="logo-icon">
+                <path
+                  id="logo-part-1"
+                  class="logo-path"
+                  stroke="#2a3d66"
+                  d="M 300,230 L 175,150 L 175,325 L 100,375 L 100,0 L 300,150"
+                />
+                <path
+                  id="logo-part-2"
+                  class="logo-path"
+                  stroke="#B8860B"
+                  d="M 300,400 L 500,300 L 500,0 L 300,150 L 450,250 L 300,325"
+                />
+              </g>
+              <text
+                id="main-text"
+                class="logo-text"
+                x="50%"
+                y="500"
+                font-size="48"
+                font-weight="bold"
+                text-anchor="middle"
+              >
+                METASTACK
+              </text>
+              <text
+                id="sub-text"
+                class="logo-text"
+                x="50%"
+                y="550"
+                font-size="20"
+                letter-spacing="2"
+                text-anchor="middle"
+              >
+                SOLUTIONS
+              </text>
+            </svg>
+          </a>
+        </div>
+        <!-- Nodes -->
+        <div class="node node-1" onclick="showDetail('order-hub')">
+          <div class="icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8.25 7.5l.415-.207a.75.75 0 011.085.67V10.5m0 0h6m-6 0a.75.75 0 001.085.67l.415-.207M3 10.5a.75.75 0 01.75-.75h16.5a.75.75 0 010 1.5H3.75a.75.75 0 01-.75-.75zM10.5 18.75a.75.75 0 001.085.67l.415-.207M10.5 18.75V15m0 3.75a.75.75 0 01-1.085.67l-.415-.207M12 15.75a.75.75 0 01.75-.75h4.5a.75.75 0 010 1.5h-4.5a.75.75 0 01-.75-.75z"
+              />
+            </svg>
+          </div>
+          <h3>Order Hub</h3>
+          <p>Unify all online and offline orders.</p>
+        </div>
+        <div class="node node-2" onclick="showDetail('kds')">
+          <div class="icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 17.25v1.007a3 3 0 01-.375 1.432l-1.25 2.502M15 17.25v1.007a3 3 0 00.375 1.432l1.25 2.502M12 21V3.75m0 17.25a3 3 0 01-3-3V12a3 3 0 013-3h.008a3 3 0 013 3v6a3 3 0 01-3 3h-.008z"
+              />
+            </svg>
+          </div>
+          <h3>Smart KDS</h3>
+          <p>Digitize and streamline kitchen workflow.</p>
+        </div>
+        <div class="node node-3" onclick="showDetail('menus')">
+          <div class="icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
+              />
+            </svg>
+          </div>
+          <h3>Digital Menus</h3>
+          <p>Update menus instantly, everywhere.</p>
+        </div>
+        <div class="node node-4" onclick="showDetail('pos')">
+          <div class="icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15A2.25 2.25 0 002.25 6.75v10.5A2.25 2.25 0 004.5 19.5z"
+              />
+            </svg>
+          </div>
+          <h3>Integrated POS</h3>
+          <p>Simplify billing and payment processing.</p>
+        </div>
+        <div class="node node-5" onclick="showDetail('crm')">
+          <div class="icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+              />
+            </svg>
+          </div>
+          <h3>Customer CRM</h3>
+          <p>Build loyalty and understand your guests.</p>
+        </div>
+        <div class="node node-6" onclick="showDetail('analytics')">
+          <div class="icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3.75 3v11.25A2.25 2.25 0 006 16.5h12A2.25 2.25 0 0020.25 14.25V3M3.75 3l-1.48-1.48M20.25 3l1.48-1.48M3.75 3H20.25m-16.5 0V21m16.5-18v18"
+              />
+            </svg>
+          </div>
+          <h3>Analytics</h3>
+          <p>Make data-driven decisions for growth.</p>
+        </div>
+      </div>
+
+      <section class="cta-section max-w-4xl mx-auto text-center">
+        <h2 class="page-title text-3xl font-bold">
+          Ready to Revolutionize Your Restaurant?
+        </h2>
+        <p class="mt-4 text-lg text-gray-500">
+          This guide shows what's possible. At MetaStack, we build custom,
+          all-in-one solutions that solve these challenges. Let us craft the
+          perfect system for your unique brand.
+        </p>
+        <a
+          href="https://www.metastackwebtechnologies.com/services"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="cta-button inline-block mt-6"
+          >Get a Free Consultation</a
+        >
+      </section>
+    </div>
+
+    <!-- Detail Pages -->
+    <div
+      id="order-hub"
+      class="detail-content container mx-auto px-4 py-12 max-w-4xl"
+    >
+      <button onclick="showMain()" class="back-button mb-8">
+        &larr; Back to Overview
+      </button>
+      <h1 class="page-title text-4xl font-bold">Centralized Order Hub</h1>
+      <div class="pain-point">
+        <strong>Pain Point:</strong> Juggling multiple tablets for Swiggy,
+        Zomato, and your own website leads to missed orders, mistakes, and a
+        stressed-out front-of-house team.
+      </div>
+      <p class="text-lg mt-6">
+        An Order Hub is the heart of a modern restaurant. It consolidates every
+        single order—from third-party delivery apps, your website, QR code table
+        orders, and even phone calls—into one single, intuitive screen.
+      </p>
+      <div class="image-grid">
+        <img
+          src="https://placehold.co/600x400/FFF0E0/3D2C22?text=Stressed+Staff+with+Tablets"
+          alt="Stressed restaurant staff juggling multiple tablets for different food delivery services."
+        />
+        <img
+          src="https://placehold.co/600x400/E0F2F1/3D2C22?text=Calm+Staff+with+One+Screen"
+          alt="Calm restaurant staff easily managing all orders on a single, unified screen."
+        />
+      </div>
+      <h3 class="text-2xl font-bold mt-8 page-title">The MetaStack Solution</h3>
+      <p class="mt-2">
+        We build a custom dashboard that provides a bird's-eye view of your
+        entire operation. It's more than just a list; it's an intelligent
+        command center.
+      </p>
+      <div class="mockup-container mt-6">
+        <img
+          src="https://placehold.co/800x450/2D2D2D/FFFFFF?text=Mockup:+Unified+Order+Dashboard"
+          alt="A sleek, dark-mode UI mockup of a unified order management dashboard showing incoming orders from Swiggy, Zomato, and Dine-in."
+        />
+        <p>A single, clean interface for all your orders.</p>
+      </div>
+    </div>
+
+    <div id="kds" class="detail-content container mx-auto px-4 py-12 max-w-4xl">
+      <button onclick="showMain()" class="back-button mb-8">
+        &larr; Back to Overview
+      </button>
+      <h1 class="page-title text-4xl font-bold">
+        Smart Kitchen Display System (KDS)
+      </h1>
+      <div class="pain-point">
+        <strong>Pain Point:</strong> Paper tickets get lost, are hard to read,
+        and create chaos in the kitchen. This leads to incorrect orders and slow
+        preparation times.
+      </div>
+      <p class="text-lg mt-6">
+        A KDS replaces traditional paper printers with digital screens. Orders
+        from the Order Hub appear instantly on screens in the kitchen, organized
+        by priority and station.
+      </p>
+      <div class="image-grid">
+        <img
+          src="https://placehold.co/600x400/FFF0E0/3D2C22?text=Chaotic+Kitchen+with+Paper+Tickets"
+          alt="A chaotic kitchen with paper order tickets pinned everywhere, leading to confusion."
+        />
+        <div class="mockup-container">
+          <img
+            src="https://placehold.co/800x450/2D2D2D/FFFFFF?text=Mockup:+Clean+KDS+Screen"
+            alt="Mockup of a Kitchen Display System screen showing digital order cards, timers, and item details clearly."
+          />
+          <p>Digital tickets, organized by station and priority.</p>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold mt-8 page-title">The MetaStack Solution</h3>
+      <p class="mt-2">
+        Our KDS is designed for speed and clarity. It routes orders to the
+        correct stations, tracks prep times, and allows cooks to mark items as
+        complete with a simple tap, notifying the front-of-house automatically.
+      </p>
+    </div>
+
+    <div
+      id="menus"
+      class="detail-content container mx-auto px-4 py-12 max-w-4xl"
+    >
+      <button onclick="showMain()" class="back-button mb-8">
+        &larr; Back to Overview
+      </button>
+      <h1 class="page-title text-4xl font-bold">Dynamic Digital Menus</h1>
+      <div class="pain-point">
+        <strong>Pain Point:</strong> Reprinting menus to change one price or
+        mark an item as "sold out" is expensive and slow. Updating menus on
+        Zomato, Swiggy, and your website individually is a tedious chore.
+      </div>
+      <p class="text-lg mt-6">
+        A centralized menu management system allows you to update a dish, change
+        a price, or add a special from one place and have it reflect instantly
+        across all your platforms: in-house QR menus, your website, and
+        third-party apps.
+      </p>
+      <div class="image-grid">
+        <div class="mockup-container">
+          <img
+            src="https://placehold.co/800x450/2D2D2D/FFFFFF?text=Mockup:+Menu+Management+Dashboard"
+            alt="A UI mockup of a menu management dashboard where a user can easily edit item prices and availability."
+          />
+          <p>Update once, publish everywhere.</p>
+        </div>
+        <img
+          src="https://placehold.co/600x400/E0F2F1/3D2C22?text=Customer+Viewing+QR+Menu"
+          alt="A happy customer scanning a QR code on a restaurant table and browsing the digital menu on their smartphone."
+        />
+      </div>
+      <h3 class="text-2xl font-bold mt-8 page-title">The MetaStack Solution</h3>
+      <p class="mt-2">
+        We provide a simple interface where you can manage your entire menu.
+        Mark an item "out of stock" and it's instantly unavailable for order
+        everywhere, preventing customer disappointment. Run a "happy hour"
+        special with just a few clicks.
+      </p>
+    </div>
+
+    <div id="pos" class="detail-content container mx-auto px-4 py-12 max-w-4xl">
+      <button onclick="showMain()" class="back-button mb-8">
+        &larr; Back to Overview
+      </button>
+      <h1 class="page-title text-4xl font-bold">
+        Integrated Point of Sale (POS)
+      </h1>
+      <div class="pain-point">
+        <strong>Pain Point:</strong> Traditional POS systems are clunky,
+        disconnected from online orders, and make tasks like splitting bills or
+        applying discounts a nightmare.
+      </div>
+      <p class="text-lg mt-6">
+        A modern, integrated POS is the cash register, billing system, and
+        payment processor all in one. It's directly connected to your Order Hub
+        and KDS, meaning every order, whether dine-in or delivery, is tracked in
+        your sales data automatically.
+      </p>
+      <div class="image-grid">
+        <img
+          src="https://placehold.co/600x400/FFF0E0/3D2C22?text=Server+with+Handheld+POS"
+          alt="A server at a restaurant table taking an order on a modern handheld POS device."
+        />
+        <div class="mockup-container">
+          <img
+            src="https://placehold.co/800x450/2D2D2D/FFFFFF?text=Diagram:+POS+Integration+Flow"
+            alt="A simple flowchart showing how Orders, KDS, and POS all sync with a central database."
+          />
+          <p>A fully connected system.</p>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold mt-8 page-title">The MetaStack Solution</h3>
+      <p class="mt-2">
+        Our POS solutions run on any tablet or dedicated device. They are
+        designed for speed and ease of use, with features like one-tap bill
+        splitting, easy discount application, and integration with modern
+        payment gateways like UPI and card machines.
+      </p>
+    </div>
+
+    <div id="crm" class="detail-content container mx-auto px-4 py-12 max-w-4xl">
+      <button onclick="showMain()" class="back-button mb-8">
+        &larr; Back to Overview
+      </button>
+      <h1 class="page-title text-4xl font-bold">
+        Customer Relationship Management (CRM)
+      </h1>
+      <div class="pain-point">
+        <strong>Pain Point:</strong> You have repeat customers, but you don't
+        know who they are, what they like, or how to encourage them to come back
+        more often.
+      </div>
+      <p class="text-lg mt-6">
+        A restaurant CRM builds a profile for every customer. It tracks their
+        order history, favorite dishes, visit frequency, and total spending.
+        This data is gold for building loyalty and personalizing their
+        experience.
+      </p>
+      <div class="image-grid">
+        <img
+          src="https://placehold.co/600x400/E0F2F1/3D2C22?text=Customer+Receiving+Loyalty+SMS"
+          alt="A customer smiling at their phone, having received a personalized offer or loyalty points update via SMS."
+        />
+        <div class="mockup-container">
+          <img
+            src="https://placehold.co/800x450/2D2D2D/FFFFFF?text=Mockup:+CRM+Dashboard"
+            alt="A UI mockup of a CRM dashboard showing top customers, their lifetime value, and recent activity."
+          />
+          <p>Understand and reward your best customers.</p>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold mt-8 page-title">The MetaStack Solution</h3>
+      <p class="mt-2">
+        We integrate a CRM that automatically captures customer data from online
+        orders and reservations. Use this to run automated loyalty programs
+        (e.g., "Your 10th order is on us!") or send targeted marketing campaigns
+        via SMS or email ("We know you love our Biryani, get 15% off today!").
+      </p>
+    </div>
+
+    <div
+      id="analytics"
+      class="detail-content container mx-auto px-4 py-12 max-w-4xl"
+    >
+      <button onclick="showMain()" class="back-button mb-8">
+        &larr; Back to Overview
+      </button>
+      <h1 class="page-title text-4xl font-bold">Analytics & Reporting</h1>
+      <div class="pain-point">
+        <strong>Pain Point:</strong> You're running a business on gut feelings.
+        You don't have clear data on your best-selling items, peak hours, or
+        which delivery platform is most profitable.
+      </div>
+      <p class="text-lg mt-6">
+        An analytics dashboard pulls data from your entire operating system
+        (POS, CRM, Order Hub) and presents it in easy-to-understand reports and
+        graphs. It helps you stop guessing and start making strategic,
+        data-driven decisions.
+      </p>
+      <div class="image-grid">
+        <img
+          src="https://placehold.co/600x400/FFF0E0/3D2C22?text=Restaurant+Owner+Analyzing+Data"
+          alt="A restaurant owner looking thoughtfully at a laptop displaying sales graphs and business analytics."
+        />
+        <div class="mockup-container">
+          <img
+            src="https://placehold.co/800x450/2D2D2D/FFFFFF?text=Mockup:+Sales+Analytics+Dashboard"
+            alt="A UI mockup of a sales analytics dashboard showing charts for daily revenue, top-selling items, and platform comparison."
+          />
+          <p>Turn your sales data into business intelligence.</p>
+        </div>
+      </div>
+      <h3 class="text-2xl font-bold mt-8 page-title">The MetaStack Solution</h3>
+      <p class="mt-2">
+        We build powerful analytics dashboards that answer your most important
+        questions. Which dishes should you promote? Which should you remove from
+        the menu? When are your busiest hours for delivery? Is Zomato more
+        profitable than Swiggy? Our reports give you the clear answers you need
+        to grow your business.
+      </p>
+    </div>
+
+    <footer class="footer text-center">
+      <p>&copy; 2024 MetaStack Web Technologies. All Rights Reserved.</p>
+      <div class="mt-2">
+        <a
+          href="https://www.metastackwebtechnologies.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Home</a
+        >
+        |
+        <a
+          href="https://www.metastackwebtechnologies.com/services"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Services</a
+        >
+        |
+        <a
+          href="https://www.metastackwebtechnologies.com/contact"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Contact</a
+        >
+      </div>
+    </footer>
+
+    <script>
+      const mainPage = document.getElementById("mainPage");
+      const detailPages = document.querySelectorAll(".detail-content");
+
+      function showDetail(pageId) {
+        mainPage.classList.remove("visible");
+        detailPages.forEach((page) => page.classList.remove("visible"));
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) {
+          targetPage.classList.add("visible");
+        }
+        window.scrollTo(0, 0);
+      }
+
+      function showMain() {
+        detailPages.forEach((page) => page.classList.remove("visible"));
+        mainPage.classList.add("visible");
+        window.scrollTo(0, 0);
+      }
+
+      // --- Animated Background Logic ---
+      const canvas = document.getElementById("background-canvas");
+      const ctx = canvas.getContext("2d");
+      let particles = [];
+
+      const herbPaths = [
+        // Simple rosemary-like sprig
+        "M10 0 L10 30 M10 10 L5 5 M10 10 L15 5 M10 20 L5 15 M10 20 L15 15",
+        // Simple thyme-like leaf
+        "M10 10 C 5 5, 5 15, 10 10 M10 10 C 15 5, 15 15, 10 10",
+      ];
+
+      function createParticles() {
+        particles = [];
+        for (let i = 0; i < 20; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            path: new Path2D(herbPaths[i % herbPaths.length]),
+            rotation: Math.random() * 360,
+            scale: Math.random() * 0.5 + 0.5,
+            speed: Math.random() * 0.3 + 0.1,
+            opacity: Math.random() * 0.3 + 0.1,
+          });
+        }
+      }
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        createParticles();
+      }
+      window.addEventListener("resize", resizeCanvas);
+
+      function drawBackground() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = "rgba(184, 134, 11, 0.2)";
+        ctx.lineWidth = 1;
+
+        particles.forEach((p) => {
+          p.y -= p.speed;
+          p.rotation += p.speed / 20;
+          if (p.y < -30) {
+            p.y = canvas.height + 30;
+            p.x = Math.random() * canvas.width;
+          }
+
+          ctx.save();
+          ctx.globalAlpha = p.opacity;
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.scale(p.scale, p.scale);
+          ctx.stroke(p.path);
+          ctx.restore();
+        });
+
+        requestAnimationFrame(drawBackground);
+      }
+
+      resizeCanvas();
+      drawBackground();
+    </script>
+  </body>
+</html>

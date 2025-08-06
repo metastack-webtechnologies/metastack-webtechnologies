@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A complete guide to the Modern Clinic Operating System. Discover how MetaStack Web Technologies helps doctors, dentists, and wellness centers streamline appointments, manage patient records, and grow their practice."
+    />
+    <title>Clinic OS Guide - MetaStack Web Technologies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+      :root {
+        --bg-color: #f8fafc; /* Light blue-gray */
+        --text-color: #334155; /* Slate 700 */
+        --heading-color: #0f172a; /* Slate 900 */
+        --accent-color: #2563eb; /* Blue 600 */
+        --accent-hover: #1d4ed8; /* Blue 700 */
+        --border-color: rgba(37, 99, 235, 0.2);
+        --node-bg: rgba(255, 255, 255, 0.8);
+        --detail-bg: #ffffff;
+      }
+
+      body.dark-mode {
+        --bg-color: #0f172a; /* Slate 900 */
+        --text-color: #94a3b8; /* Slate 400 */
+        --heading-color: #f8fafc; /* Slate 50 */
+        --accent-color: #38bdf8; /* Light Blue 400 */
+        --accent-hover: #7dd3fc; /* Light Blue 300 */
+        --border-color: rgba(56, 189, 248, 0.2);
+        --node-bg: rgba(30, 41, 59, 0.7); /* Slate 800 */
+        --detail-bg: #1e293b; /* Slate 800 */
+      }
+
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.5s ease, color 0.5s ease;
+      }
+
+      #background-video {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        filter: grayscale(50%) brightness(40%); /* Adjusted brightness */
+        transition: filter 0.5s ease;
+      }
+
+      body.dark-mode #background-video {
+        filter: grayscale(80%) brightness(30%); /* Adjusted brightness for dark mode */
+      }
+
+      .main-content,
+      .detail-content {
+        animation: fadeIn 1s ease-in-out forwards;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .visible {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .page-title {
+        font-family: "Merriweather", serif;
+        color: var(--heading-color);
+        text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6); /* Stronger shadow for title */
+      }
+
+      /* New style for the main header card */
+      .main-header-card {
+        background-color: var(--node-bg); /* Semi-transparent background */
+        padding: 2.5rem; /* Internal spacing */
+        border-radius: 1rem; /* Rounded corners */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07); /* Subtle shadow */
+        backdrop-filter: blur(8px); /* Blur effect */
+        border: 1px solid var(--border-color); /* Border for definition */
+      }
+
+      .main-content header p {
+        /* Target the descriptive paragraph */
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); /* Shadow for description */
+      }
+
+      .mindmap-container {
+        position: relative;
+        width: 100%;
+        max-width: 700px;
+        height: 700px;
+        margin: 4rem auto; /* Keep this for larger screens */
+      }
+
+      .central-logo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        height: 300px;
+        z-index: 10;
+        cursor: pointer;
+      }
+
+      .central-logo svg {
+        transition: filter 0.3s ease-in-out;
+      }
+
+      .central-logo a:hover svg {
+        filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.05));
+      }
+
+      .logo-path {
+        stroke-width: 10;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+        stroke-dasharray: 1500;
+        stroke-dashoffset: 1500;
+        animation: draw 2s ease-in-out forwards;
+      }
+      .logo-text {
+        font-family: "Merriweather", serif;
+        fill: var(--heading-color);
+        opacity: 0;
+        animation: fade-in-logo 1s ease-in forwards;
+        transition: fill 0.5s ease;
+      }
+      #logo-part-2 {
+        animation-delay: 1s;
+      }
+      #main-text {
+        animation-delay: 2s;
+      }
+      #sub-text {
+        animation-delay: 2.5s;
+      }
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @keyframes fade-in-logo {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .node {
+        position: absolute;
+        width: 180px;
+        height: 180px;
+        background-color: var(--node-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 5;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        opacity: 0;
+        animation: popIn 0.5s ease-out forwards;
+      }
+
+      .node:hover {
+        transform: scale(1.1);
+        border-color: var(--accent-color);
+        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15);
+      }
+
+      .node .icon {
+        width: 48px;
+        height: 48px;
+        color: var(--accent-color);
+        transition: transform 0.3s ease;
+      }
+      .node:hover .icon {
+        transform: scale(1.2) rotate(5deg);
+      }
+      .node h3 {
+        font-family: "Merriweather", serif;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        color: var(--heading-color);
+      }
+      .node p {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        color: var(--text-color);
+      }
+
+      .node-1 {
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation-delay: 0.5s;
+      }
+      .node-2 {
+        top: 35%;
+        left: 98%;
+        transform: translate(-50%, -50%);
+        animation-delay: 0.7s;
+      }
+      .node-3 {
+        top: 85%;
+        left: 85%;
+        transform: translate(-50%, -50%);
+        animation-delay: 0.9s;
+      }
+      .node-4 {
+        top: 85%;
+        left: 15%;
+        transform: translate(-50%, -50%);
+        animation-delay: 1.1s;
+      }
+      .node-5 {
+        top: 35%;
+        left: 2%;
+        transform: translate(-50%, -50%);
+        animation-delay: 1.3s;
+      }
+
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.5);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      .detail-content {
+        background-color: var(--detail-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2.5rem;
+        margin-top: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+      }
+      .pain-point {
+        background-color: #fff1f2;
+        border-left: 4px solid #e11d48;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin: 1.5rem 0;
+        color: #881337;
+      }
+      body.dark-mode .pain-point {
+        background-color: #3f2226;
+        color: #fecdd3;
+        border-left-color: #fb7185;
+      }
+      .pain-point strong {
+        color: #be123c;
+      }
+      body.dark-mode .pain-point strong {
+        color: #fda4af;
+      }
+      .back-button,
+      .cta-button {
+        background-color: var(--accent-color);
+        border: 1px solid var(--accent-color);
+        color: white;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+      }
+      .back-button:hover,
+      .cta-button:hover {
+        background-color: var(--accent-hover);
+        border-color: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .cta-section {
+        background-color: transparent;
+        border: none;
+        padding: 2.5rem;
+        margin-top: 8rem;
+      }
+      .footer {
+        border-top: 1px solid var(--border-color);
+        padding: 2rem 1rem;
+        margin-top: 4rem;
+        color: #64748b;
+      }
+      .footer a {
+        color: var(--accent-color);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .footer a:hover {
+        color: var(--accent-hover);
+      }
+
+      /* Stacked Image Gallery Styles */
+      .stacked-image-gallery {
+        position: relative;
+        width: 100%;
+        max-width: 400px; /* Adjust max width as needed */
+        aspect-ratio: 1 / 1; /* Square aspect ratio for stacking */
+        margin: 3rem auto; /* Center the gallery */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-bottom: 20%; /* Space for the fanned out bottom */
+      }
+
+      .stacked-image-gallery .stacked-image-tile {
+        position: absolute;
+        width: 80%; /* Smaller base size */
+        height: 80%;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        transition: transform 0.4s ease-out, filter 0.4s ease;
+        cursor: pointer;
+        transform-origin: bottom center; /* Pivot point for rotation */
+        background-color: var(--node-bg);
+        border: 1px solid var(--border-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .stacked-image-gallery .stacked-image-tile img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: grayscale(100%) brightness(50%); /* Initial subtle effect */
+        transition: filter 0.4s ease;
+      }
+
+      /* Initial stacking and rotation */
+      .stacked-image-gallery .stacked-image-tile:nth-child(1) {
+        transform: rotate(-8deg) translateY(-5%);
+        z-index: 5;
+      }
+      .stacked-image-gallery .stacked-image-tile:nth-child(2) {
+        transform: rotate(-4deg) translateY(-2.5%);
+        z-index: 4;
+      }
+      .stacked-image-gallery .stacked-image-tile:nth-child(3) {
+        transform: rotate(0deg) translateY(0%);
+        z-index: 3;
+      }
+      .stacked-image-gallery .stacked-image-tile:nth-child(4) {
+        transform: rotate(4deg) translateY(-2.5%);
+        z-index: 2;
+      }
+      .stacked-image-gallery .stacked-image-tile:nth-child(5) {
+        transform: rotate(8deg) translateY(-5%);
+        z-index: 1;
+      }
+
+      /* Hover effect for the entire gallery container */
+      .stacked-image-gallery:hover .stacked-image-tile:nth-child(1) {
+        transform: translateX(-100%) rotate(-15deg) scale(1.1);
+        filter: grayscale(0%) brightness(100%);
+      }
+      .stacked-image-gallery:hover .stacked-image-tile:nth-child(2) {
+        transform: translateX(-50%) rotate(-7deg) scale(1.1);
+        filter: grayscale(0%) brightness(100%);
+      }
+      .stacked-image-gallery:hover .stacked-image-tile:nth-child(3) {
+        transform: translateX(0%) rotate(0deg) scale(1.1);
+        filter: grayscale(0%) brightness(100%);
+      }
+      .stacked-image-gallery:hover .stacked-image-tile:nth-child(4) {
+        transform: translateX(50%) rotate(7deg) scale(1.1);
+        filter: grayscale(0%) brightness(100%);
+      }
+      .stacked-image-gallery:hover .stacked-image-tile:nth-child(5) {
+        transform: translateX(100%) rotate(15deg) scale(1.1);
+        filter: grayscale(0%) brightness(100%);
+      }
+
+      .stacked-image-gallery .overlay-text {
+        position: absolute;
+        bottom: 1rem;
+        left: 1rem;
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.9rem;
+        opacity: 0; /* Initially hidden */
+        transition: opacity 0.3s ease;
+        pointer-events: none; /* Allows clicks to pass through to the tile */
+        z-index: 6; /* Ensure text is above all layers */
+      }
+
+      .stacked-image-gallery:hover .overlay-text {
+        opacity: 1; /* Appears on hover */
+      }
+
+      /* Responsive styles for Booking Mockup */
+      .booking-mockup-container {
+        background-color: var(--detail-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-top: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .booking-step {
+        background-color: var(--node-bg);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+      }
+
+      .booking-step h4 {
+        font-family: "Merriweather", serif;
+        font-size: 1.25rem;
+        color: var(--heading-color);
+        margin-bottom: 1rem;
+      }
+
+      .calendar-mockup {
+        background-color: #f0f4f8; /* Light gray for calendar background */
+        border-radius: 0.5rem;
+        padding: 1rem;
+        text-align: center;
+        color: #64748b;
+        font-weight: bold;
+      }
+      body.dark-mode .calendar-mockup {
+        background-color: #1e293b;
+        color: #94a3b8;
+      }
+
+      .time-slot-button {
+        background-color: var(--bg-color);
+        border: 1px solid var(--border-color);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .time-slot-button:hover {
+        background-color: var(--accent-color);
+        color: white;
+      }
+      .time-slot-button.selected {
+        background-color: var(--accent-color);
+        color: white;
+        border-color: var(--accent-color);
+      }
+
+      .service-doctor-card {
+        background-color: var(--bg-color);
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .service-doctor-card:hover {
+        border-color: var(--accent-color);
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+      }
+      .service-doctor-card.selected {
+        border-color: var(--accent-color);
+        background-color: rgba(37, 99, 235, 0.1);
+      }
+      body.dark-mode .service-doctor-card.selected {
+        background-color: rgba(56, 189, 248, 0.1);
+      }
+
+      .service-doctor-card img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .booking-summary p {
+        margin-bottom: 0.5rem;
+      }
+
+      /* RESPONSIVE ADJUSTMENTS FOR SPACING */
+      @media (max-width: 768px) {
+        .main-content header {
+          margin-bottom: 4rem; /* Keep this for smaller screens, adjust if needed */
+          padding: 1.5rem; /* Adjust padding for smaller screens */
+        }
+
+        .mindmap-container {
+          height: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 2rem; /* Adds space between elements in column layout */
+          margin: 0 auto; /* Remove fixed top margin when stacking */
+          padding-top: 2rem; /* Add padding to the top of the container itself */
+        }
+        .node {
+          position: static; /* Removes absolute positioning */
+          transform: none !important; /* Overrides any previous transforms */
+          animation: fadeIn 1s ease-out forwards;
+          width: 80%;
+          max-width: 300px;
+          height: auto; /* Allow height to adjust to content */
+        }
+        .central-logo {
+          position: static; /* Removes absolute positioning */
+          transform: none; /* Overrides any previous transforms */
+          margin-bottom: 2rem; /* Adds space below the logo */
+          width: 200px; /* Adjust logo size for smaller screens */
+          height: 200px;
+        }
+        /* Ensure all nodes have consistent spacing when stacked */
+        .node-1,
+        .node-2,
+        .node-3,
+        .node-4,
+        .node-5 {
+          top: auto; /* Remove specific top positioning */
+          left: auto; /* Remove specific left positioning */
+          margin-bottom: 1rem; /* Add consistent space between stacked nodes */
+        }
+        .node-5 {
+          margin-bottom: 0; /* Remove extra margin for the last node if needed */
+        }
+        .stacked-image-gallery {
+          max-width: 300px; /* Adjust for smaller mobile screens */
+          aspect-ratio: 4 / 3; /* Slightly wider for mobile stack */
+        }
+        .stacked-image-gallery:hover .stacked-image-tile:nth-child(1) {
+          transform: translateX(-60%) rotate(-10deg) scale(1.05); /* Less dramatic spread */
+        }
+        .stacked-image-gallery:hover .stacked-image-tile:nth-child(2) {
+          transform: translateX(-30%) rotate(-5deg) scale(1.05);
+        }
+        .stacked-image-gallery:hover .stacked-image-tile:nth-child(3) {
+          transform: translateX(0%) rotate(0deg) scale(1.05);
+        }
+        .stacked-image-gallery:hover .stacked-image-tile:nth-child(4) {
+          transform: translateX(30%) rotate(5deg) scale(1.05);
+        }
+        .stacked-image-gallery:hover .stacked-image-tile:nth-child(5) {
+          transform: translateX(60%) rotate(10deg) scale(1.05);
+        }
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <!-- Video element for the background -->
+    <video id="background-video" loop muted autoplay playsinline>
+      <source src="133898-758336558.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect, useRef } = React;
+
+      function App() {
+        const [activePage, setActivePage] = useState("main");
+
+        const navigateTo = (pageId) => {
+          setActivePage(pageId);
+          window.scrollTo(0, 0);
+        };
+
+        return (
+          <>
+            <ThemeSwitcher />
+
+            <div id="main-content-container">
+              {activePage === "main" ? (
+                <MainPage onNavigate={navigateTo} />
+              ) : (
+                <DetailPage pageId={activePage} onNavigate={navigateTo} />
+              )}
+            </div>
+
+            <AIChatWidget />
+          </>
+        );
+      }
+
+      function MainPage({ onNavigate }) {
+        // Ensure the video is displayed when on the main page
+        useEffect(() => {
+          const video = document.getElementById("background-video");
+          if (video) {
+            video.style.display = "block";
+          }
+        }, []);
+
+        return (
+          <div
+            id="mainPage"
+            className="main-content visible container mx-auto px-4 py-12 relative"
+          >
+            <header className="text-center mb-32 main-header-card">
+              <h1 className="page-title text-4xl md:text-6xl font-bold">
+                The Modern Clinic Operating System
+              </h1>
+              <p
+                className="text-base text-slate-500 max-w-3xl mx-auto animate-fadeIn"
+                style={{ marginTop: "50px", animationDelay: "0.5s" }}
+              >
+                Transforming clinics with automation and care.
+              </p>
+            </header>
+            <div className="mindmap-container" id="mindmap">
+              <div className="central-logo">
+                <a
+                  href="https://www.metastackwebtechnologies.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Metastack Web Technologies Homepage"
+                >
+                  <svg
+                    viewBox="0 0 600 600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Metastack Web Technologies Animated Logo"
+                  >
+                    <g id="logo-icon">
+                      <path
+                        id="logo-part-1"
+                        className="logo-path"
+                        stroke="#2a3d66"
+                        d="M 300,230 L 175,150 L 175,325 L 100,375 L 100,0 L 300,150"
+                      />
+                      <path
+                        id="logo-part-2"
+                        className="logo-path"
+                        stroke="#2563EB"
+                        d="M 300,400 L 500,300 L 500,0 L 300,150 L 450,250 L 300,325"
+                      />
+                    </g>
+                    <text
+                      id="main-text"
+                      className="logo-text"
+                      x="50%"
+                      y="500"
+                      fontSize="48"
+                      fontWeight="bold"
+                      textAnchor="middle"
+                    >
+                      METASTACK
+                    </text>
+                    <text
+                      id="sub-text"
+                      className="logo-text"
+                      x="50%"
+                      y="550"
+                      fontSize="20"
+                      letterSpacing="2"
+                      textAnchor="middle"
+                    >
+                      SOLUTIONS
+                    </text>
+                  </svg>
+                </a>
+              </div>
+              <div
+                className="node node-1"
+                onClick={() => onNavigate("booking")}
+              >
+                <div className="icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M12 12.75h.008v.008H12v-.008z"
+                    />
+                  </svg>
+                </div>
+                <h3>Online Booking</h3>
+                <p>24/7 patient self-scheduling.</p>
+              </div>
+              <div
+                className="node node-2"
+                onClick={() => onNavigate("records")}
+              >
+                <div className="icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                    />
+                  </svg>
+                </div>
+                <h3>Patient Records</h3>
+                <p>Secure, digital, and instantly accessible.</p>
+              </div>
+              <div className="node node-3" onClick={() => onNavigate("comms")}>
+                <div className="icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                    />
+                  </svg>
+                </div>
+                <h3>Automated Comms</h3>
+                <p>Reduce no-shows with smart reminders.</p>
+              </div>
+              <div
+                className="node node-4"
+                onClick={() => onNavigate("billing")}
+              >
+                <div className="icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15A2.25 2.25 0 002.25 6.741v10.5A2.25 2.25 0 004.5 19.5z"
+                    />
+                  </svg>
+                </div>
+                <h3>Simple Billing</h3>
+                <p>Generate invoices and receipts instantly.</p>
+              </div>
+              <div
+                className="node node-5"
+                onClick={() => onNavigate("analytics")}
+              >
+                <div className="icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3.75 3v11.25A2.25 2.25 0 006 16.5h12A2.25 2.25 0 0020.25 14.25V3M3.75 3l-1.48-1.48M20.25 3l1.48-1.48M3.75 3H20.25m-16.5 0V21m16.5-18v18"
+                    />
+                  </svg>
+                </div>
+                <h3>Practice Analytics</h3>
+                <p>Insights for practice growth.</p>
+              </div>
+            </div>
+            <section className="cta-section max-w-4xl mx-auto text-center">
+              <h2 className="page-title text-3xl font-bold">
+                Ready to Build a Healthier Practice?
+              </h2>
+              <p className="mt-4 text-lg text-slate-500">
+                This guide illustrates the future of clinic management. At
+                MetaStack, we create bespoke software that gives you back your
+                most valuable asset: time. Let us build the perfect system for
+                your practice.
+              </p>
+              <a
+                href="https://www.metastackwebtechnologies.com/services"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cta-button inline-block mt-6"
+              >
+                Book a Free Discovery Call
+              </a>
+            </section>
+            <Footer />
+          </div>
+        );
+      }
+
+      // New StackedImageGallery Component
+      function StackedImageGallery({ images }) {
+        return (
+          <div className="stacked-image-gallery">
+            {images.map((img, index) => (
+              <div key={index} className="stacked-image-tile">
+                <img src={img.src} alt={img.alt} />
+                <div className="overlay-text">View</div>
+              </div>
+            ))}
+          </div>
+        );
+      }
+
+      // New BookingInterfaceMockup Component
+      function BookingInterfaceMockup() {
+        const [step, setStep] = useState(1);
+        const [selectedService, setSelectedService] = useState(null);
+        const [selectedDoctor, setSelectedDoctor] = useState(null);
+        const [selectedDate, setSelectedDate] = useState(null);
+        const [selectedTime, setSelectedTime] = useState(null);
+
+        const services = [
+          {
+            id: "consultation",
+            name: "General Consultation",
+            price: "$50",
+            icon: "🩺",
+          },
+          { id: "checkup", name: "Annual Check-up", price: "$75", icon: "❤️" },
+          { id: "vaccination", name: "Vaccination", price: "$30", icon: "💉" },
+        ];
+
+        const doctors = [
+          {
+            id: "dr_smith",
+            name: "Dr. Alice Smith",
+            specialty: "General Practice",
+            avatar: "https://placehold.co/40x40/FFD700/000?text=AS",
+          },
+          {
+            id: "dr_jones",
+            name: "Dr. Bob Jones",
+            specialty: "Pediatrics",
+            avatar: "https://placehold.co/40x40/ADD8E6/000?text=BJ",
+          },
+        ];
+
+        const availableDates = ["2025-08-01", "2025-08-02", "2025-08-03"];
+        const availableTimes = [
+          "09:00 AM",
+          "10:00 AM",
+          "11:00 AM",
+          "02:00 PM",
+          "03:00 PM",
+        ];
+
+        const handleNext = () => setStep((prev) => prev + 1);
+        const handleBack = () => setStep((prev) => prev - 1);
+        const handleConfirmBooking = () => {
+          // Simulate API call or data submission
+          console.log("Booking confirmed:", {
+            selectedService,
+            selectedDoctor,
+            selectedDate,
+            selectedTime,
+          });
+          setStep(4); // Go to success page
+        };
+
+        const renderStep = () => {
+          switch (step) {
+            case 1:
+              return (
+                <div className="booking-step">
+                  <h4>1. Select Service & Doctor</h4>
+                  <div className="flex flex-col gap-3 mb-4">
+                    {services.map((service) => (
+                      <div
+                        key={service.id}
+                        className={`service-doctor-card ${
+                          selectedService?.id === service.id ? "selected" : ""
+                        }`}
+                        onClick={() => setSelectedService(service)}
+                      >
+                        <div>{service.icon}</div>
+                        <div>
+                          <p className="font-bold">{service.name}</p>
+                          <p className="text-sm text-slate-500">
+                            {service.price}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {doctors.map((doctor) => (
+                      <div
+                        key={doctor.id}
+                        className={`service-doctor-card ${
+                          selectedDoctor?.id === doctor.id ? "selected" : ""
+                        }`}
+                        onClick={() => setSelectedDoctor(doctor)}
+                      >
+                        <img src={doctor.avatar} alt={doctor.name} />
+                        <div>
+                          <p className="font-bold">{doctor.name}</p>
+                          <p className="text-sm text-slate-500">
+                            {doctor.specialty}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-end mt-4">
+                    <button
+                      onClick={handleNext}
+                      className="cta-button"
+                      disabled={!selectedService || !selectedDoctor}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              );
+            case 2:
+              return (
+                <div className="booking-step">
+                  <h4>2. Choose Date & Time</h4>
+                  <div className="calendar-mockup mb-4">
+                    <p className="text-lg mb-2">August 2025</p>
+                    <div className="grid grid-cols-7 gap-2 text-sm">
+                      {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((day) => (
+                        <div key={day} className="text-slate-400">
+                          {day}
+                        </div>
+                      ))}
+                      {Array.from({ length: 31 }).map((_, i) => {
+                        const day = i + 1;
+                        const dateString = `2025-08-${String(day).padStart(
+                          2,
+                          "0"
+                        )}`;
+                        const isAvailable = availableDates.includes(dateString);
+                        const isSelected = selectedDate === dateString;
+                        return (
+                          <div
+                            key={day}
+                            className={`p-2 rounded-full ${
+                              isAvailable
+                                ? "bg-blue-100 dark:bg-blue-900 cursor-pointer"
+                                : "text-gray-300 dark:text-gray-600"
+                            } ${
+                              isSelected ? "bg-accent-color text-white" : ""
+                            }`}
+                            onClick={() =>
+                              isAvailable && setSelectedDate(dateString)
+                            }
+                          >
+                            {day}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {availableTimes.map((time) => (
+                      <button
+                        key={time}
+                        className={`time-slot-button ${
+                          selectedTime === time ? "selected" : ""
+                        }`}
+                        onClick={() => setSelectedTime(time)}
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex justify-between mt-4">
+                    <button onClick={handleBack} className="back-button">
+                      Back
+                    </button>
+                    <button
+                      onClick={handleNext}
+                      className="cta-button"
+                      disabled={!selectedDate || !selectedTime}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              );
+            case 3:
+              return (
+                <div className="booking-step">
+                  <h4>3. Confirm Your Appointment</h4>
+                  <div className="booking-summary text-base mb-4">
+                    <p>
+                      <strong>Service:</strong> {selectedService?.name}
+                    </p>
+                    <p>
+                      <strong>Doctor:</strong> {selectedDoctor?.name}
+                    </p>
+                    <p>
+                      <strong>Date:</strong> {selectedDate}
+                    </p>
+                    <p>
+                      <strong>Time:</strong> {selectedTime}
+                    </p>
+                    <p className="text-xl font-bold mt-2">
+                      Total: {selectedService?.price}
+                    </p>
+                  </div>
+                  <div className="flex justify-between mt-4">
+                    <button onClick={handleBack} className="back-button">
+                      Back
+                    </button>
+                    <button
+                      onClick={handleConfirmBooking}
+                      className="cta-button"
+                    >
+                      Confirm Booking
+                    </button>
+                  </div>
+                </div>
+              );
+            case 4:
+              return (
+                <div className="booking-step text-center">
+                  <h4>Booking Confirmed! 🎉</h4>
+                  <p className="text-lg text-green-600 dark:text-green-400 mb-4">
+                    Your appointment has been successfully booked.
+                  </p>
+                  <p className="text-sm">
+                    A confirmation email has been sent to your registered
+                    address.
+                  </p>
+                  <p className="text-sm mt-2">
+                    Thank you for choosing MetaStack!
+                  </p>
+                  <div className="flex justify-center mt-6">
+                    <button onClick={() => setStep(1)} className="back-button">
+                      Book Another
+                    </button>
+                  </div>
+                </div>
+              );
+            default:
+              return null;
+          }
+        };
+
+        return <div className="booking-mockup-container">{renderStep()}</div>;
+      }
+
+      const detailPageContent = {
+        booking: {
+          title: "24/7 Online Appointment Booking",
+          painPoint:
+            "Your front desk is constantly interrupted by phone calls for appointments. Patients get frustrated when they can't book outside of clinic hours, leading to lost business.",
+          description:
+            "An online booking system is your digital receptionist that never sleeps. It allows patients to view your real-time availability and book an appointment from their phone or computer, anytime, anywhere.",
+          // Reverted to original img1 and mockup for the booking page
+          img1: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070&auto=format&fit=crop",
+          mockup: "image_46c270.png", // Using the provided mockup image here
+          solution:
+            "We create a secure, user-friendly booking portal that integrates directly with your website and your calendar. It automatically prevents double-bookings and can be configured to collect necessary patient information or even pre-payments upfront.",
+        },
+        records: {
+          title: "Digital Patient Records (DPR)",
+          painPoint:
+            "Physical files are cumbersome, hard to search, and take up valuable space. Finding a patient's complete history quickly during a consultation is nearly impossible.",
+          description:
+            "A DPR system digitizes all your patient information. From consultation notes and medical history to prescriptions and uploaded lab reports, everything is stored in one secure, easily searchable database.",
+          extraImages: [
+            {
+              src: "https://images.unsplash.com/photo-1584515933487-779824d29309?q=80&w=2070&auto=format&fit=crop",
+              alt: "Digital patient records",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1530026364009-245366479f64?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+              alt: "Doctor explaining to patient",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1585435557343-3b0920377fd6?auto=format&fit=crop&q=80&w=2070&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+              alt: "Medical tools on desk",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=2070&auto=format&fit=crop",
+              alt: "Medical data on screen",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1542884748-0b731273871e?q=80&w=2070&auto=format&fit=crop",
+              alt: "Hand on tablet with medical data",
+            },
+          ],
+        },
+        comms: {
+          title: "Automated Patient Communications",
+          painPoint:
+            "Patient no-shows cost you time and money. Manually calling or messaging every patient to remind them of their appointment is a huge drain on your staff's time.",
+          description:
+            "An automated communication system handles this for you. Once an appointment is booked, the system automatically sends confirmation and reminder messages via SMS and Email at intervals you define (e.g., 24 hours and 2 hours before).",
+          extraImages: [
+            {
+              src: "https://images.unsplash.com/photo-1614624532983-4ce03382d63d?q=80&w=1931&auto=format&fit=crop",
+              alt: "Phone with messages",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=2070&auto=format&fit=crop",
+              alt: "Woman checking phone",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1526657782927-947e45610e64?q=80&w=2070&auto=format&fit=crop",
+              alt: "Email marketing",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1557426716-a36c64998797?q=80&w=2070&auto=format&fit=crop",
+              alt: "People discussing",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1519389950473-47ba0c766d27?q=80&w=2070&auto=format&fit=crop",
+              alt: "Office communication",
+            },
+          ],
+        },
+        billing: {
+          title: "Simple, Professional Billing",
+          painPoint:
+            "Creating itemized bills and receipts manually is slow and can lead to calculation errors. There's no easy way to track outstanding payments.",
+          description:
+            "An integrated billing module simplifies the entire financial process. With a few clicks, you can generate a professional, itemized invoice for a consultation, procedure, or any other service.",
+          extraImages: [
+            {
+              src: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=2070&auto=format&fit=crop",
+              alt: "Billing machine",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1554224155-1696413565d3?q=80&w=2070&auto=format&fit=crop",
+              alt: "Calculator and money",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1563986768605-e42528f727d0?q=80&w=2070&auto=format&fit=crop",
+              alt: "Invoice on tablet",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1580894732444-8c87165d141e?q=80&w=2070&auto=format&fit=crop",
+              alt: "Financial charts",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1556740714-a83a4b6c3d9a?q=80&w=2070&auto=format&fit=crop",
+              alt: "Payment terminal",
+            },
+          ],
+        },
+        analytics: {
+          title: "Practice Analytics Dashboard",
+          painPoint:
+            "You're unsure about the financial health and growth of your practice. You don't have clear data on your busiest days, most common services, or patient demographics.",
+          description:
+            "An analytics dashboard provides a high-level overview of your clinic's performance. It transforms your daily operational data into valuable insights that help you make informed decisions to grow your practice.",
+          extraImages: [
+            {
+              src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+              alt: "Analytics dashboard",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1521737711867-ee1bd2dad56c?q=80&w=2070&auto=format&fit=crop",
+              alt: "Team analyzing data",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1550565118-fe0db14fe302?q=80&w=2070&auto=format&fit=crop",
+              alt: "Chart with growth trend",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+              alt: "Data visualization",
+            },
+            {
+              src: "https://images.unsplash.com/photo-1523289311438-6f690226444f?q=80&w=2070&auto=format&fit=crop",
+              alt: "Business meeting with charts",
+            },
+          ],
+        },
+      };
+
+      function DetailPage({ pageId, onNavigate }) {
+        const content = detailPageContent[pageId];
+        if (!content) return <div>Content not found.</div>;
+
+        // Hide the video when on a detail page
+        useEffect(() => {
+          const video = document.getElementById("background-video");
+          if (video) {
+            video.style.display = "none";
+          }
+        }, []);
+
+        return (
+          <div
+            id={pageId}
+            className="detail-content visible container mx-auto px-4 py-12 max-w-4xl"
+          >
+            <button
+              onClick={() => onNavigate("main")}
+              className="back-button mb-8"
+            >
+              &larr; Back to Overview
+            </button>
+            <h1 className="page-title text-4xl font-bold">{content.title}</h1>
+            <div className="pain-point">
+              <strong>Pain Point:</strong> {content.painPoint}
+            </div>
+            <p className="text-lg mt-6">{content.description}</p>
+
+            {/* Reverted conditional rendering for booking page, and use StackedImageGallery for others */}
+            {pageId === "booking" ? (
+              <>
+                <div className="image-grid">
+                  <img src={content.img1} alt={content.title} />
+                  <div className="mockup-container">
+                    <img
+                      src={content.mockup}
+                      alt={`Mockup for ${content.title}`}
+                    />
+                    <p>A visual example of the solution in action.</p>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-bold mt-8 page-title">
+                  Interactive Booking Process
+                </h3>
+                <BookingInterfaceMockup />
+              </>
+            ) : (
+              <StackedImageGallery images={content.extraImages} />
+            )}
+
+            <h3 className="text-2xl font-bold mt-8 page-title">
+              The MetaStack Solution
+            </h3>
+            <p className="mt-2">{content.solution}</p>
+
+            <Footer />
+          </div>
+        );
+      }
+
+      function Footer() {
+        return (
+          <footer className="footer text-center">
+            <p>&copy; 2024 MetaStack Web Technologies. All Rights Reserved.</p>
+            <div className="mt-2">
+              <a
+                href="https://www.metastackwebtechnologies.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Home
+              </a>{" "}
+              |
+              <a
+                href="https://www.metastackwebtechnologies.com/services"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Services
+              </a>{" "}
+              |
+              <a
+                href="https://www.metastackwebtechnologies.com/contact"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Contact
+              </a>
+            </div>
+          </footer>
+        );
+      }
+
+      function AIChatWidget() {
+        const [isOpen, setIsOpen] = useState(false);
+        const [messages, setMessages] = useState([
+          {
+            sender: "ai",
+            text: "Hello! How can I help you improve your clinic's operations today?",
+          },
+        ]);
+        const [input, setInput] = useState("");
+        const [isTyping, setIsTyping] = useState(false);
+        const messagesEndRef = useRef(null);
+
+        const scrollToBottom = () => {
+          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        };
+
+        useEffect(scrollToBottom, [messages]);
+
+        const handleSend = (textToSend) => {
+          const query = textToSend || input;
+          if (!query.trim()) return;
+          const newMessages = [...messages, { sender: "user", text: query }];
+          setMessages(newMessages);
+          setInput("");
+          setIsTyping(true);
+
+          setTimeout(() => {
+            let aiResponse =
+              "I can help with questions about clinic management. For example, try asking 'How can I reduce no-shows?' or 'What are the benefits of digital records?'";
+            if (query.toLowerCase().includes("no-show")) {
+              aiResponse =
+                "Reducing no-shows is crucial! Our system uses automated SMS and Email reminders, typically cutting no-show rates by up to 70%. This directly saves time and recovers lost revenue.";
+            } else if (
+              query.toLowerCase().includes("record") ||
+              query.toLowerCase().includes("digital")
+            ) {
+              aiResponse =
+                "Digital Patient Records (DPR) are a game-changer. They provide instant access to patient history, are securely backed up, save physical space, and allow for powerful searching, which is impossible with paper files.";
+            }
+            setMessages((prev) => [
+              ...prev,
+              { sender: "ai", text: aiResponse },
+            ]);
+            setIsTyping(false);
+          }, 1500);
+        };
+
+        return (
+          <div id="ai-chat-widget">
+            <div id="ai-chat-window" className={isOpen ? "open" : ""}>
+              <div className="p-4 border-b border-[var(--border-color)]">
+                <h3 className="font-bold text-[var(--heading-color)]">
+                  AI Clinic Assistant
+                </h3>
+                <p className="text-sm">Powered by MetaStack</p>
+              </div>
+              <div className="flex-1 p-4 overflow-y-auto space-y-4">
+                {messages.map((msg, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${
+                      msg.sender === "user" ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`max-w-[80%] p-3 rounded-lg ${
+                        msg.sender === "user"
+                          ? "bg-[var(--accent-color)] text-white"
+                          : "bg-gray-200 dark:bg-slate-700 text-[var(--text-color)]"
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="p-3 rounded-lg bg-gray-200 dark:bg-slate-700">
+                      ...
+                    </div>
+                  </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="p-2 border-t border-[var(--border-color)] flex-wrap">
+                <div className="flex gap-2 mb-2">
+                  <button
+                    className="suggested-prompt"
+                    onClick={() => handleSend("How to reduce no-shows?")}
+                  >
+                    Reduce no-shows
+                  </button>
+                  <button
+                    className="suggested-prompt"
+                    onClick={() => handleSend("Benefits of digital records?")}
+                  >
+                    Digital Records
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                    placeholder="Ask a question..."
+                    className="flex-1 p-2 border border-[var(--border-color)] rounded bg-[var(--bg-color)] text-[var(--text-color)]"
+                  />
+                  <button
+                    onClick={() => handleSend()}
+                    className="cta-button p-2"
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button id="ai-chat-bubble" onClick={() => setIsOpen(!isOpen)}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                className="w-8 h-8"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
+                />
+              </svg>
+            </button>
+          </div>
+        );
+      }
+
+      function ThemeSwitcher() {
+        const [isDark, setIsDark] = useState(false);
+
+        useEffect(() => {
+          const savedTheme = localStorage.getItem("theme");
+          if (savedTheme === "dark") {
+            document.body.classList.add("dark-mode");
+            setIsDark(true);
+          }
+        }, []);
+
+        const toggleTheme = () => {
+          const bodyClassList = document.body.classList;
+          if (isDark) {
+            bodyClassList.remove("dark-mode");
+            localStorage.setItem("theme", "light");
+          } else {
+            bodyClassList.add("dark-mode");
+            localStorage.setItem("theme", "dark");
+          }
+          setIsDark(!isDark);
+        };
+
+        return (
+          <div className="theme-switch-wrapper">
+            <label className="theme-switch" htmlFor="theme-toggle">
+              <input
+                type="checkbox"
+                id="theme-toggle"
+                onChange={toggleTheme}
+                checked={isDark}
+              />
+              <div className="slider round"></div>
+            </label>
+          </div>
+        );
+      }
+
+      const container = document.getElementById("root");
+      const root = ReactDOM.createRoot(container);
+      root.render(<App />);
+    </script>
+  </body>
+</html>
