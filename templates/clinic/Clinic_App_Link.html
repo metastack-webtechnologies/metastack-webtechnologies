@@ -1,0 +1,641 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="The ultimate guide to a modern Clinic Operating System with a live chatbot, animations, and theme support."
+    />
+    <title>Clinic OS Guide - MetaStack Web Technologies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SCRIPT FOR LOTTIE ANIMATION -->
+    <script
+      src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.6.2/dist/dotlottie-wc.js"
+      type="module"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-color: #f0f7ff;
+        --text-color: #4a5568;
+        --heading-color: #2d3748;
+        --accent-color: #3182ce;
+        --accent-hover: #2b6cb0;
+        --border-color: rgba(49, 130, 206, 0.2);
+        --node-bg: rgba(255, 255, 255, 0.7);
+        --tool-cta-bg: rgba(255, 255, 255, 0.8);
+        --glow-color: rgba(49, 130, 206, 0.2);
+      }
+
+      .dark-mode {
+        --bg-color: #1a202c;
+        --text-color: #a0aec0;
+        --heading-color: #edf2f7;
+        --accent-color: #63b3ed;
+        --accent-hover: #4299e1;
+        --border-color: rgba(99, 179, 237, 0.3);
+        --node-bg: rgba(45, 55, 71, 0.7);
+        --tool-cta-bg: rgba(26, 32, 44, 0.8);
+        --glow-color: rgba(99, 179, 237, 0.25);
+      }
+
+      body {
+        font-family: "Lato", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      #bg-video {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -100;
+        object-fit: cover;
+        opacity: 0.1;
+      }
+
+      .dark-mode #bg-video {
+        opacity: 0.2;
+      }
+
+      .page-title {
+        font-family: "Playfair Display", serif;
+        color: var(--heading-color);
+      }
+      .node,
+      .tool-cta-section {
+        background-color: var(--node-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(8px);
+        transition: background-color 0.3s ease, border-color 0.3s ease,
+          transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .node:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px var(--glow-color);
+      }
+      .node h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.25rem;
+        margin-top: 0.5rem;
+        color: var(--heading-color);
+      }
+      .pain-point {
+        background-color: rgba(229, 62, 62, 0.1);
+        border-left: 4px solid #e53e3e;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin: 1.5rem 0;
+        color: #c53030;
+      }
+      .dark-mode .pain-point {
+        color: #feb2b2;
+      }
+      .pain-point strong {
+        color: #c53030;
+      }
+      .dark-mode .pain-point strong {
+        color: #f56565;
+      }
+
+      .cta-button {
+        background-color: var(--accent-color);
+        border: 1px solid var(--accent-color);
+        color: white;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+      }
+      .cta-button:hover {
+        background-color: var(--accent-hover);
+        border-color: var(--accent-hover);
+        transform: translateY(-2px);
+      }
+      .tool-cta-section {
+        margin-top: 4rem;
+        margin-bottom: 4rem;
+        padding: 2.5rem;
+        border-style: dashed;
+        border-width: 2px;
+        background-color: var(--tool-cta-bg);
+      }
+      .footer {
+        border-top: 1px solid var(--border-color);
+        padding: 2rem 1rem;
+        margin-top: 4rem;
+      }
+      .theme-toggle-button {
+        background-color: var(--node-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--accent-color);
+      }
+      .fade-in-element {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+      }
+      .fade-in-element.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* CHATBOT STYLES */
+      #chat-bubble {
+        position: fixed;
+        bottom: 1rem;
+        right: 1rem;
+        width: 100px;
+        height: 100px;
+        background-color: transparent;
+        cursor: pointer;
+        z-index: 1000;
+        transition: transform 0.2s ease-out;
+      }
+      #chat-bubble:hover {
+        transform: scale(1.1);
+      }
+      #chat-window {
+        position: fixed;
+        bottom: 8.5rem;
+        right: 2rem;
+        width: 350px;
+        max-width: 90vw;
+        height: 500px;
+        max-height: 80vh;
+        background-color: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        display: none;
+        flex-direction: column;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+      }
+      #chat-window.open {
+        display: flex;
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .chat-header {
+        background-color: var(--accent-color);
+        color: white;
+        padding: 1rem;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+        font-weight: bold;
+      }
+      .chat-messages {
+        flex-grow: 1;
+        padding: 1rem;
+        overflow-y: auto;
+      }
+      .bot-message,
+      .user-message {
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+        max-width: 80%;
+        line-height: 1.4;
+      }
+      .bot-message {
+        background-color: var(--node-bg);
+        align-self: flex-start;
+      }
+      .user-message {
+        background-color: var(--accent-color);
+        color: white;
+        align-self: flex-end;
+        margin-left: auto;
+      }
+      .chat-options {
+        padding: 1rem;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .chat-option {
+        background-color: transparent;
+        border: 1px solid var(--accent-color);
+        color: var(--accent-color);
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .chat-option:hover {
+        background-color: var(--accent-color);
+        color: white;
+      }
+      #close-chat-btn {
+        background: none;
+        border: none;
+        color: white;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+      }
+      #close-chat-btn:hover {
+        opacity: 1;
+      }
+      #chat-nameplate {
+        position: fixed;
+        bottom: calc(1rem + 100px);
+        right: 2.5rem;
+        background-color: var(--accent-color);
+        color: white;
+        padding: 0.25rem 1rem;
+        border-radius: 1rem 1rem 0 0;
+        font-size: 0.875rem;
+        z-index: 999;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <video autoplay muted loop id="bg-video">
+      <source src="{% static 'clinic/133898-758336558.mp4' %}" type="video/mp4">
+      Your browser does not support HTML5 video.
+    </video>
+
+    <div class="relative z-10">
+      <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12 relative">
+          <div class="absolute top-0 right-0">
+            <button id="theme-toggle" class="theme-toggle-button">
+              <svg
+                id="theme-icon-light"
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                ></path>
+              </svg>
+              <svg
+                id="theme-icon-dark"
+                class="w-6 h-6 hidden"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+
+          <h1 class="page-title text-4xl md:text-6xl font-bold">
+            The Modern Clinic OS
+          </h1>
+          <p class="text-lg mt-4 max-w-3xl mx-auto">
+            A guide to solving the key challenges faced by today's small clinics
+            and wellness centers.
+          </p>
+        </header>
+
+        <section class="tool-cta-section max-w-4xl mx-auto text-center">
+          <h2 class="page-title text-3xl font-bold">
+            Explore the Clinic OS Concept
+          </h2>
+          <p class="mt-4 text-lg">
+            See our interactive guide that breaks down the core components and
+            benefits of a modern clinic operating system.
+          </p>
+          <a
+            href="{% url 'clinic_guide' %}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="cta-button inline-block mt-6"
+            >View Interactive Guide</a
+          >
+        </section>
+
+        <div class="max-w-5xl mx-auto">
+          <h2 class="page-title text-3xl font-bold text-center mb-8 mt-16">
+            Core Components of a Clinic OS
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="node fade-in-element">
+              <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="flex-shrink-0">
+                  <dotlottie-wc
+                    src="https://lottie.host/8a62173b-0a13-4b82-9995-097da7a2ceee/Vzr3RkUd3x.lottie"
+                    style="width: 200px; height: 200px"
+                    speed="1"
+                    autoplay
+                    loop
+                  ></dotlottie-wc>
+                </div>
+                <div>
+                  <h3>Online Appointment Booking</h3>
+                  <div class="pain-point mt-2">
+                    <strong>Pain Point:</strong> Time-consuming phone calls and
+                    scheduling errors.
+                  </div>
+                  <p>
+                    <strong>Solution:</strong> A 24/7 online portal for patients
+                    to book their own appointments. Reduces front-desk work and
+                    eliminates double bookings.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="node fade-in-element">
+              <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="flex-shrink-0">
+                  <dotlottie-wc
+                    src="https://lottie.host/56de6460-b1ea-400d-a423-b19f67ab36d3/PzEkK0O21q.lottie"
+                    style="width: 200px; height: 200px"
+                    speed="1"
+                    autoplay
+                    loop
+                  ></dotlottie-wc>
+                </div>
+                <div>
+                  <h3>Digital Patient Records (DPR)</h3>
+                  <div class="pain-point mt-2">
+                    <strong>Pain Point:</strong> Insecure, disorganized, and
+                    hard-to-access paper files.
+                  </div>
+                  <p>
+                    <strong>Solution:</strong> A secure, centralized system to
+                    store and retrieve patient history, notes, and documents
+                    instantly and from anywhere.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="node fade-in-element">
+              <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="flex-shrink-0">
+                  <dotlottie-wc
+                    src="https://lottie.host/bb214e8f-2b3b-40c6-a428-2d3803be337f/OCSS9xvCYR.lottie"
+                    style="width: 200px; height: 200px"
+                    speed="1"
+                    autoplay
+                    loop
+                  ></dotlottie-wc>
+                </div>
+                <div>
+                  <h3>Automated Communication</h3>
+                  <div class="pain-point mt-2">
+                    <strong>Pain Point:</strong> Manual reminders are
+                    inefficient; no-shows cause revenue loss.
+                  </div>
+                  <p>
+                    <strong>Solution:</strong> Automatic SMS/Email reminders and
+                    follow-ups. Reduces no-shows and improves patient engagement
+                    with no manual effort.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- MODIFIED NODE WITH NEW LOTTIE ANIMATION -->
+            <div class="node fade-in-element">
+              <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="flex-shrink-0">
+                  <dotlottie-wc
+                    src="https://lottie.host/1f8fe49a-0558-4125-8959-ade435b7452a/vFkYJkGUJq.lottie"
+                    style="width: 200px; height: 200px"
+                    speed="1"
+                    autoplay
+                    loop
+                  ></dotlottie-wc>
+                </div>
+                <div>
+                  <h3>Simple Billing & Invoicing</h3>
+                  <div class="pain-point mt-2">
+                    <strong>Pain Point:</strong> Billing is a manual,
+                    repetitive, and error-prone task.
+                  </div>
+                  <p>
+                    <strong>Solution:</strong> One-click generation of
+                    professional bills and receipts. Integrates with patient
+                    records for accuracy and efficiency.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="footer text-center">
+          <p>&copy; 2025 MetaStack Web Technologies. All Rights Reserved.</p>
+        </footer>
+      </div>
+    </div>
+
+    <div id="chat-widget">
+      <div id="chat-nameplate">CareBot</div>
+      <button id="chat-bubble">
+        <dotlottie-wc
+          src="https://lottie.host/e19029bd-57c5-4b22-b19f-9a36183a04a3/XLiflT6enM.lottie"
+          style="width: 100px; height: 100px"
+          speed="1"
+          autoplay
+          loop
+        ></dotlottie-wc>
+      </button>
+      <div id="chat-window">
+        <div class="chat-header flex justify-between items-center">
+          <span>CareBot</span>
+          <button id="close-chat-btn" title="Close chat">
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-options" id="chat-options"></div>
+      </div>
+    </div>
+
+    <script>
+      // --- THEME TOGGLE SCRIPT ---
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const lightIcon = document.getElementById("theme-icon-light");
+      const darkIcon = document.getElementById("theme-icon-dark");
+      function applyTheme(theme) {
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark-mode");
+          lightIcon.classList.add("hidden");
+          darkIcon.classList.remove("hidden");
+        } else {
+          document.documentElement.classList.remove("dark-mode");
+          lightIcon.classList.remove("hidden");
+          darkIcon.classList.add("hidden");
+        }
+      }
+      const savedTheme =
+        localStorage.getItem("theme") ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light");
+      applyTheme(savedTheme);
+      themeToggleBtn.addEventListener("click", () => {
+        const isDarkMode =
+          document.documentElement.classList.contains("dark-mode");
+        if (isDarkMode) {
+          localStorage.setItem("theme", "light");
+          applyTheme("light");
+        } else {
+          localStorage.setItem("theme", "dark");
+          applyTheme("dark");
+        }
+      });
+
+      // --- ON-SCROLL ANIMATION SCRIPT ---
+      const fadeElements = document.querySelectorAll(".fade-in-element");
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      fadeElements.forEach((element) => {
+        observer.observe(element);
+      });
+
+      // --- CHATBOT SCRIPT ---
+      const chatBubble = document.getElementById("chat-bubble");
+      const chatWindow = document.getElementById("chat-window");
+      const chatMessages = document.getElementById("chat-messages");
+      const chatOptions = document.getElementById("chat-options");
+      const closeChatBtn = document.getElementById("close-chat-btn");
+      const chatNameplate = document.getElementById("chat-nameplate");
+
+      const conversation = {
+        start: {
+          text: "Hi! I'm CareBot. How can I assist you today?",
+          options: [
+            { text: "Our Services", next: "services" },
+            { text: "Clinic Timings", next: "timings" },
+            { text: "Book an Appointment", next: "appointment" },
+          ],
+        },
+        services: {
+          text: "We offer services for General Physicians, Dentists, and Physiotherapists, including consultations, dental procedures, and therapy sessions.",
+          options: [{ text: "Go Back", next: "start" }],
+        },
+        timings: {
+          text: "Our clinic is open Monday to Saturday, from 9:00 AM to 7:00 PM. We are closed on Sundays.",
+          options: [{ text: "Go Back", next: "start" }],
+        },
+        appointment: {
+          text: "For appointments, please call us at +91-1234567890 or use the booking link on our main website. Is there anything else?",
+          options: [{ text: "Go Back", next: "start" }],
+        },
+      };
+
+      let currentStep = "start";
+
+      function addBotMessage(text) {
+        const messageEl = document.createElement("div");
+        messageEl.className = "bot-message";
+        messageEl.innerHTML = text;
+        chatMessages.appendChild(messageEl);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function addUserMessage(text) {
+        const messageEl = document.createElement("div");
+        messageEl.className = "user-message";
+        messageEl.textContent = text;
+        chatMessages.appendChild(messageEl);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+
+      function showOptions(options) {
+        chatOptions.innerHTML = "";
+        options.forEach((option) => {
+          const button = document.createElement("button");
+          button.className = "chat-option";
+          button.textContent = option.text;
+          button.onclick = () => handleOptionClick(option);
+          chatOptions.appendChild(button);
+        });
+      }
+
+      function handleOptionClick(option) {
+        addUserMessage(option.text);
+        currentStep = option.next;
+        setTimeout(() => {
+          const step = conversation[currentStep];
+          addBotMessage(step.text);
+          showOptions(step.options);
+        }, 500);
+      }
+
+      function toggleChatWindow() {
+        const isOpen = chatWindow.classList.toggle("open");
+        chatNameplate.style.display = isOpen ? "none" : "block";
+
+        if (isOpen && chatMessages.children.length === 0) {
+          const startStep = conversation["start"];
+          addBotMessage(startStep.text);
+          showOptions(startStep.options);
+        }
+      }
+
+      chatBubble.addEventListener("click", toggleChatWindow);
+      closeChatBtn.addEventListener("click", () => {
+        chatWindow.classList.remove("open");
+        chatNameplate.style.display = "block";
+      });
+    </script>
+  </body>
+</html>

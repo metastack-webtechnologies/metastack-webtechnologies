@@ -1,0 +1,650 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="The ultimate guide to a modern Clinic Operating System. Learn how MetaStack Web Technologies solves patient management, appointment scheduling, and more with custom health-tech solutions."
+    />
+    <title>Clinic OS Guide - MetaStack Web Technologies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-color: #f0f7ff;
+        --text-color: #4a5568;
+        --heading-color: #2d3748;
+        --accent-color: #3182ce;
+        --accent-hover: #2b6cb0;
+        --border-color: rgba(49, 130, 206, 0.2);
+        --node-bg: rgba(255, 255, 255, 0.7);
+        --detail-bg: rgba(255, 255, 255, 0.9);
+        --logo-stroke-1: #2d3748;
+        --logo-stroke-2: #3182ce;
+      }
+
+      .dark-mode {
+        --bg-color: #1a202c;
+        --text-color: #a0aec0;
+        --heading-color: #edf2f7;
+        --accent-color: #63b3ed;
+        --accent-hover: #4299e1;
+        --border-color: rgba(99, 179, 237, 0.3);
+        --node-bg: rgba(45, 55, 71, 0.7);
+        --detail-bg: rgba(26, 32, 44, 0.9);
+        --logo-stroke-1: #edf2f7;
+        --logo-stroke-2: #63b3ed;
+      }
+
+      body {
+        font-family: "Lato", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      #bg-video {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+        z-index: -100;
+        object-fit: cover;
+        opacity: 0.1;
+      }
+      .dark-mode #bg-video {
+        opacity: 0.2;
+      }
+
+      .main-content,
+      .detail-content {
+        display: none;
+        animation: fadeIn 1s ease-in-out forwards;
+      }
+
+      .visible {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .page-title {
+        font-family: "Playfair Display", serif;
+        color: var(--heading-color);
+      }
+
+      .mindmap-container {
+        position: relative;
+        width: 100%;
+        max-width: 700px;
+        height: 700px;
+        margin: 4rem auto;
+      }
+
+      .central-logo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        height: 300px;
+        z-index: 10;
+        cursor: pointer;
+      }
+
+      .logo-path {
+        stroke-width: 10;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+        stroke-dasharray: 1500;
+        stroke-dashoffset: 1500;
+        animation: draw 2s ease-in-out forwards;
+      }
+      #logo-part-1 {
+        stroke: var(--logo-stroke-1);
+      }
+      #logo-part-2 {
+        stroke: var(--logo-stroke-2);
+        animation-delay: 1s;
+      }
+
+      .logo-text {
+        font-family: "Playfair Display", serif;
+        fill: var(--heading-color);
+        opacity: 0;
+        animation: fade-in-logo 1s ease-in forwards;
+      }
+      #main-text {
+        animation-delay: 2s;
+      }
+      #sub-text {
+        animation-delay: 2.5s;
+      }
+
+      @keyframes draw {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+      @keyframes fade-in-logo {
+        to {
+          opacity: 1;
+        }
+      }
+
+      .node {
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        background-color: var(--node-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 5;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        opacity: 0;
+        animation: popIn 0.5s ease-out forwards;
+      }
+
+      .node:hover {
+        transform: scale(1.1);
+        border-color: var(--accent-color);
+        box-shadow: 0 8px 25px rgba(49, 130, 206, 0.2);
+      }
+
+      .node .icon {
+        width: 48px;
+        height: 48px;
+        color: var(--accent-color);
+        transition: transform 0.3s ease;
+      }
+      .node:hover .icon {
+        transform: scale(1.2) rotate(5deg);
+      }
+      .node h3 {
+        font-family: "Playfair Display", serif;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+        color: var(--heading-color);
+      }
+      .node p {
+        font-size: 0.75rem;
+        line-height: 1.2;
+        color: var(--text-color);
+      }
+
+      .node-1 {
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation-delay: 0.5s;
+      }
+      .node-2 {
+        top: 50%;
+        left: 100%;
+        transform: translate(-50%, -50%);
+        animation-delay: 0.8s;
+      }
+      .node-3 {
+        top: 100%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation-delay: 1.1s;
+      }
+      .node-4 {
+        top: 50%;
+        left: 0%;
+        transform: translate(-50%, -50%);
+        animation-delay: 1.4s;
+      }
+
+      @keyframes popIn {
+        from {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.5);
+        }
+        to {
+          opacity: 1;
+          transform: translate(-50%, -50%) scale(1);
+        }
+      }
+
+      .detail-content {
+        background-color: var(--detail-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 1rem;
+        padding: 2.5rem;
+        margin-top: 2rem;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+      }
+      .pain-point {
+        background-color: #fff5f5;
+        border-left: 4px solid #e53e3e;
+        padding: 1rem;
+        border-radius: 0.25rem;
+        margin: 1.5rem 0;
+        color: #9b2c2c;
+      }
+      .dark-mode .pain-point {
+        background-color: rgba(229, 62, 62, 0.1);
+        color: #feb2b2;
+      }
+      .pain-point strong {
+        color: #c53030;
+      }
+      .dark-mode .pain-point strong {
+        color: #f56565;
+      }
+
+      .back-button,
+      .cta-button {
+        background-color: var(--accent-color);
+        border: 1px solid var(--accent-color);
+        color: white;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+      }
+      .back-button:hover,
+      .cta-button:hover {
+        background-color: var(--accent-hover);
+        border-color: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .cta-section {
+        background-color: transparent;
+        border: none;
+        padding: 2.5rem;
+        margin-top: 8rem;
+      }
+      .footer {
+        border-top: 1px solid var(--border-color);
+        padding: 2rem 1rem;
+        margin-top: 4rem;
+      }
+      .footer a {
+        color: var(--accent-color);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .footer a:hover {
+        color: var(--accent-hover);
+      }
+      .theme-toggle-button {
+        background-color: var(--node-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--accent-color);
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <video autoplay muted loop id="bg-video">
+      <source src="{% static 'clinic/1992-153555258.mp4' %}" type="video/mp4" />
+      Your browser does not support HTML5 video.
+    </video>
+
+    <div
+      id="mainPage"
+      class="main-content visible container mx-auto px-4 py-12 relative"
+    >
+      <!-- MARGIN INCREASED HERE -->
+      <header class="text-center mb-48 relative">
+        <div class="absolute top-0 right-0">
+          <button id="theme-toggle" class="theme-toggle-button">
+            <svg
+              id="theme-icon-light"
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+              ></path>
+            </svg>
+            <svg
+              id="theme-icon-dark"
+              class="w-6 h-6 hidden"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <h1 class="page-title text-4xl md:text-6xl font-bold">
+          The Modern Clinic Operating System
+        </h1>
+        <p class="text-lg mt-4 max-w-3xl mx-auto" style="animation-delay: 0.5s">
+          A guide for Doctors, Dentists, and Physios to streamline operations,
+          enhance patient care, and grow their practice.
+        </p>
+      </header>
+
+      <div class="mindmap-container" id="mindmap">
+        <div class="central-logo">
+          <a
+            href="https://www.metastackwebtechnologies.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg">
+              <g id="logo-icon">
+                <path
+                  id="logo-part-1"
+                  class="logo-path"
+                  d="M 300,230 L 175,150 L 175,325 L 100,375 L 100,0 L 300,150"
+                />
+                <path
+                  id="logo-part-2"
+                  class="logo-path"
+                  d="M 300,400 L 500,300 L 500,0 L 300,150 L 450,250 L 300,325"
+                />
+              </g>
+              <text
+                id="main-text"
+                class="logo-text"
+                x="50%"
+                y="500"
+                font-size="48"
+                font-weight="bold"
+                text-anchor="middle"
+              >
+                METASTACK
+              </text>
+              <text
+                id="sub-text"
+                class="logo-text"
+                x="50%"
+                y="550"
+                font-size="20"
+                letter-spacing="2"
+                text-anchor="middle"
+              >
+                SOLUTIONS
+              </text>
+            </svg>
+          </a>
+        </div>
+        <div class="node node-1" onclick="showDetail('booking')">
+          <div class="icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M12 12.75h.008v.008H12v-.008z"
+              />
+            </svg>
+          </div>
+          <h3>Online Appointment Booking</h3>
+          <p>Allow patients to book appointments 24/7.</p>
+        </div>
+        <div class="node node-2" onclick="showDetail('records')">
+          <div class="icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+              />
+            </svg>
+          </div>
+          <h3>Digital Patient Records</h3>
+          <p>Securely store and access patient history.</p>
+        </div>
+        <div class="node node-3" onclick="showDetail('billing')">
+          <div class="icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15A2.25 2.25 0 002.25 6.75v10.5A2.25 2.25 0 004.5 19.5z"
+              />
+            </svg>
+          </div>
+          <h3>Simple Billing & Invoicing</h3>
+          <p>Generate bills and receipts with one click.</p>
+        </div>
+        <div class="node node-4" onclick="showDetail('communication')">
+          <div class="icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25-2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+              />
+            </svg>
+          </div>
+          <h3>Automated Communication</h3>
+          <p>Send reminders and follow-ups via SMS/Email.</p>
+        </div>
+      </div>
+
+      <section class="cta-section max-w-4xl mx-auto text-center">
+        <h2 class="page-title text-3xl font-bold">
+          Ready to Modernize Your Practice?
+        </h2>
+        <p class="mt-4 text-lg">
+          This guide shows what's possible. At MetaStack, we build custom,
+          all-in-one solutions that solve these challenges. Let us craft the
+          perfect system for your unique practice.
+        </p>
+        <a
+          href="https://www.metastackwebtechnologies.com/services"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="cta-button inline-block mt-6"
+          >Get a Free Consultation</a
+        >
+      </section>
+    </div>
+
+    <div
+      id="booking"
+      class="detail-content container mx-auto px-4 py-12 max-w-4xl"
+    >
+      <button onclick="showMain()" class="back-button mb-8">
+        &larr; Back to Overview
+      </button>
+      <h1 class="page-title text-4xl font-bold">Online Appointment Booking</h1>
+      <div class="pain-point">
+        <strong>Pain Point:</strong> Managing patient appointments over the
+        phone is time-consuming, prone to errors, and limited to office hours.
+      </div>
+      <p class="text-lg mt-6">
+        An online booking system empowers patients to view your real-time
+        availability and schedule their own appointments 24/7 from any device.
+        This drastically reduces front-desk calls and eliminates
+        double-bookings.
+      </p>
+    </div>
+    <div
+      id="records"
+      class="detail-content container mx-auto px-4 py-12 max-w-4xl"
+    >
+      <button onclick="showMain()" class="back-button mb-8">
+        &larr; Back to Overview
+      </button>
+      <h1 class="page-title text-4xl font-bold">
+        Digital Patient Records (DPR)
+      </h1>
+      <div class="pain-point">
+        <strong>Pain Point:</strong> Physical files are cumbersome, insecure,
+        and difficult to search. Finding a patient's history quickly during a
+        consultation is a constant challenge.
+      </div>
+      <p class="text-lg mt-6">
+        A DPR system securely stores all patient information—history,
+        consultation notes, prescriptions, and documents—in a centralized,
+        cloud-based platform. Access complete patient records instantly and
+        securely from anywhere.
+      </p>
+    </div>
+    <div
+      id="billing"
+      class="detail-content container mx-auto px-4 py-12 max-w-4xl"
+    >
+      <button onclick="showMain()" class="back-button mb-8">
+        &larr; Back to Overview
+      </button>
+      <h1 class="page-title text-4xl font-bold">Simple Billing & Invoicing</h1>
+      <div class="pain-point">
+        <strong>Pain Point:</strong> Manually creating bills, calculating
+        totals, and generating receipts after each consultation is a repetitive
+        and time-consuming task.
+      </div>
+      <p class="text-lg mt-6">
+        Integrated billing software allows you to generate professional,
+        itemized invoices and receipts with a single click. The system
+        automatically pulls service details and calculates totals, ensuring
+        accuracy and saving valuable time.
+      </p>
+    </div>
+    <div
+      id="communication"
+      class="detail-content container mx-auto px-4 py-12 max-w-4xl"
+    >
+      <button onclick="showMain()" class="back-button mb-8">
+        &larr; Back to Overview
+      </button>
+      <h1 class="page-title text-4xl font-bold">Automated Communication</h1>
+      <div class="pain-point">
+        <strong>Pain Point:</strong> Manually calling patients to remind them of
+        appointments is inefficient and costly, yet no-shows lead to significant
+        revenue loss.
+      </div>
+      <p class="text-lg mt-6">
+        The system automatically sends appointment confirmations, reminders, and
+        follow-up care instructions via SMS and Email. This dramatically reduces
+        no-shows, improves patient compliance, and keeps your schedule full.
+      </p>
+    </div>
+
+    <footer class="footer text-center">
+      <p>&copy; 2024 MetaStack Web Technologies. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+      const mainPage = document.getElementById("mainPage");
+      const detailPages = document.querySelectorAll(".detail-content");
+
+      function showDetail(pageId) {
+        mainPage.classList.remove("visible");
+        detailPages.forEach((page) => page.classList.remove("visible"));
+        document.getElementById(pageId)?.classList.add("visible");
+        window.scrollTo(0, 0);
+      }
+
+      function showMain() {
+        detailPages.forEach((page) => page.classList.remove("visible"));
+        mainPage.classList.add("visible");
+        window.scrollTo(0, 0);
+      }
+
+      // --- THEME TOGGLE SCRIPT ---
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const lightIcon = document.getElementById("theme-icon-light");
+      const darkIcon = document.getElementById("theme-icon-dark");
+      function applyTheme(theme) {
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark-mode");
+          lightIcon.classList.add("hidden");
+          darkIcon.classList.remove("hidden");
+        } else {
+          document.documentElement.classList.remove("dark-mode");
+          lightIcon.classList.remove("hidden");
+          darkIcon.classList.add("hidden");
+        }
+      }
+      const savedTheme =
+        localStorage.getItem("theme") ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light");
+      applyTheme(savedTheme);
+      themeToggleBtn.addEventListener("click", () => {
+        const isDarkMode =
+          document.documentElement.classList.contains("dark-mode");
+        if (isDarkMode) {
+          localStorage.setItem("theme", "light");
+          applyTheme("light");
+        } else {
+          localStorage.setItem("theme", "dark");
+          applyTheme("dark");
+        }
+      });
+    </script>
+  </body>
+</html>
